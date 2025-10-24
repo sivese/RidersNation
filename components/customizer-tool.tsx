@@ -49,9 +49,44 @@ export function CustomizerTool() {
     link.click()
   }
 
-  const requestPreviewRender = () => {
-  
-  }
+  const requestPreviewRender = async () => {
+    try {
+      if (!motorcycleImage) {
+        console.error("No motorcycle image to upload");
+        return;
+      }
+
+      // base64 데이터 URL을 Blob으로 변환
+      const base64Response = await fetch(motorcycleImage);
+      const blob = await base64Response.blob();
+      
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('motorcycle', blob, 'motorcycle.png');
+      
+      // 파트 이미지도 있으면 추가
+      if (partImage) {
+        const partBlob = await fetch(partImage).then(r => r.blob());
+        formData.append('part', partBlob, 'part.png');
+      }
+
+      const res = await fetch('http://127.0.0.1:8080/test', {
+        method: 'POST', // GET에서 POST로 변경
+        body: formData,
+        // Content-Type 헤더는 자동으로 설정되므로 제거
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log('Success!', data);
+    } 
+    catch(err) {
+      console.error("Error during preview render request:", err);
+    }
+  };
 
   // Draw composite image on canvas
   useEffect(() => {
