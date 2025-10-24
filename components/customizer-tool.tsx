@@ -49,6 +49,10 @@ export function CustomizerTool() {
     link.click()
   }
 
+  const requestPreviewRender = () => {
+  
+  }
+
   // Draw composite image on canvas
   useEffect(() => {
     const canvas = canvasRef.current
@@ -260,6 +264,13 @@ export function CustomizerTool() {
                     <p className="text-muted-foreground">Upload a motorcycle to start</p>
                   </div>
                 )}
+
+                <Button 
+                  variant="default" size="sm" onClick={requestPreviewRender}
+                  className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Run Preview
+                </Button>
               </div>
             </Card>
           </div>
