@@ -266,8 +266,10 @@ export function CustomizerTool() {
                 )}
 
                 <Button 
-                  variant="default" size="sm" onClick={requestPreviewRender}
-                  className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  variant="default" 
+                  size="lg" 
+                  className="w-full mt-4"
+                  onClick={requestPreviewRender}
                 >
                   Run Preview
                 </Button>
