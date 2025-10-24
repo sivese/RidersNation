@@ -264,15 +264,14 @@ export function CustomizerTool() {
                     <p className="text-muted-foreground">Upload a motorcycle to start</p>
                   </div>
                 )}
-
-                <Button 
-                  variant="default" 
-                  size="lg" 
-                  className="w-full mt-4"
+              </div>
+              <div className="flex flex-col items-center gap-4">
+                <button
                   onClick={requestPreviewRender}
+                  className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   Run Preview
-                </Button>
+                </button>
               </div>
             </Card>
           </div>
