@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export function CustomizerTool() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [motorcycleImage, setMotorcycleImage] = useState<string | null>(null)
   const [partImage, setPartImage] = useState<string | null>(null)
   const [partPosition, setPartPosition] = useState({ x: 50, y: 50 })
   const [partScale, setPartScale] = useState(1)
-  const [isDragging, setIsDragging] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
 
@@ -51,6 +52,8 @@ export function CustomizerTool() {
 
   const requestPreviewRender = async () => {
     try {
+      setIsGenerating(true);
+
       if (!motorcycleImage) {
         console.error("No motorcycle image to upload");
         return;
@@ -62,31 +65,41 @@ export function CustomizerTool() {
       
       // FormData 생성
       const formData = new FormData();
-      formData.append('motorcycle', blob, 'motorcycle.png');
+      formData.append('image_motorcycle', blob, 'motorcycle.png');
       
       // 파트 이미지도 있으면 추가
       if (partImage) {
         const partBlob = await fetch(partImage).then(r => r.blob());
-        formData.append('part', partBlob, 'part.png');
+        formData.append('image_part', partBlob, 'part.png');
       }
 
-      const res = await fetch('http://127.0.0.1:8080/test', {
-        method: 'POST', // GET에서 POST로 변경
+      const res = await fetch('http://127.0.0.1:8080/gen_image', {
+        method: 'POST',
         body: formData,
-        // Content-Type 헤더는 자동으로 설정되므로 제거
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorText = await res.text();
+        console.error('Server error:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
       }
 
-      const data = await res.json();
-      console.log('Success!', data);
+      // Blob을 받아서 Object URL로 변환
+      const imageBlob = await res.blob();
+      const imageUrl = URL.createObjectURL(imageBlob);
+      
+      // previewImage 상태 업데이트
+      setPreviewImage(imageUrl);
+      
+      console.log('Success! Image generated');
     } 
     catch(err) {
       console.error("Error during preview render request:", err);
     }
-  };
+    finally {
+      setIsGenerating(false);
+    }
+};
 
   // Draw composite image on canvas
   useEffect(() => {
@@ -252,46 +265,13 @@ export function CustomizerTool() {
                 ref={previewRef}
                 className="relative aspect-video overflow-hidden rounded-lg border border-border bg-secondary/30"
               >
-                {motorcycleImage ? (
+                {previewImage ? (
                   <>
                     <img
-                      src={motorcycleImage || "/placeholder.svg"}
+                      src={previewImage}
                       alt="Motorcycle preview"
                       className="h-full w-full object-contain"
                     />
-                    {partImage && (
-                      <img
-                        src={partImage || "/placeholder.svg"}
-                        alt="Part preview"
-                        draggable
-                        onDragStart={(e) => {
-                          setIsDragging(true)
-                          e.dataTransfer.effectAllowed = "move"
-                        }}
-                        onDragEnd={(e) => {
-                          setIsDragging(false)
-                          const rect = previewRef.current?.getBoundingClientRect()
-                          if (rect) {
-                            const x = ((e.clientX - rect.left) / rect.width) * 100
-                            const y = ((e.clientY - rect.top) / rect.height) * 100
-                            setPartPosition({
-                              x: Math.max(0, Math.min(100, x)),
-                              y: Math.max(0, Math.min(100, y)),
-                            })
-                          }
-                        }}
-                        style={{
-                          position: "absolute",
-                          left: `${partPosition.x}%`,
-                          top: `${partPosition.y}%`,
-                          transform: `translate(-50%, -50%) scale(${partScale})`,
-                          cursor: isDragging ? "grabbing" : "grab",
-                          maxWidth: "40%",
-                          maxHeight: "40%",
-                        }}
-                        className="object-contain transition-transform"
-                      />
-                    )}
                     <canvas ref={canvasRef} className="hidden" />
                   </>
                 ) : (
@@ -303,9 +283,10 @@ export function CustomizerTool() {
               <div className="flex flex-col items-center gap-4">
                 <button
                   onClick={requestPreviewRender}
-                  className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  disabled={isGenerating}
+                  className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Run Preview
+                  {isGenerating ? 'Generating...' : 'Run Preview'}
                 </button>
               </div>
             </Card>
