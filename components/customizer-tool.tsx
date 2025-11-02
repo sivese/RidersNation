@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export function CustomizerTool() {
+  const [dummyState, setDummyState] = useState(false); // Forcing re-render if needed
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [motorcycleImage, setMotorcycleImage] = useState<string | null>(null)
@@ -172,11 +173,11 @@ export function CustomizerTool() {
                     />
                   </label>
                   {motorcycleImage && (
-                    <div className="relative overflow-hidden rounded-lg border border-border">
+                    <div className="relative rounded-lg border border-border">
                       <img
                         src={motorcycleImage || "/placeholder.svg"}
                         alt="Motorcycle"
-                        className="h-32 w-full object-cover"
+                        className="h-64 w-full object-contain"
                       />
                     </div>
                   )}
@@ -205,11 +206,11 @@ export function CustomizerTool() {
                     />
                   </label>
                   {partImage && (
-                    <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/50">
+                    <div className="relative rounded-lg border border-border bg-secondary/50">
                       <img
                         src={partImage || "/placeholder.svg"}
                         alt="Part"
-                        className="h-32 w-full object-contain p-4"
+                        className="h-64 w-full object-contain p-4"
                       />
                     </div>
                   )}
@@ -218,7 +219,7 @@ export function CustomizerTool() {
             </div>
 
             {/* Controls - Between uploads and preview */}
-            {motorcycleImage && partImage && (
+            {motorcycleImage && partImage && dummyState && (
               <Card className="border-border bg-card p-6">
                 <h3 className="mb-4 text-lg font-semibold text-card-foreground">Adjust Part</h3>
                 <div className="space-y-4">
