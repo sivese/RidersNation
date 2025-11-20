@@ -48,6 +48,7 @@ export function CustomizerWorkshop() {
       const link = document.createElement("a")
       link.download = `motorcycle-3d-${taskStatus.id}.glb`
       link.href = `http://127.0.0.1:8080/api/3d/model/${taskStatus.id}`
+      console.log("Downloading model from:", link.href)
       link.click()
     }
   }
@@ -73,6 +74,9 @@ export function CustomizerWorkshop() {
       });
 
       if (!res.ok) {
+        const jsonError = await res.json();
+        console.log('Server error (JSON):', jsonError);
+
         const errorText = await res.text();
         console.error('Server error:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -256,7 +260,7 @@ export function CustomizerWorkshop() {
             )}
 
             {/* 3D Model Viewer */}
-            {model3dUrl && (
+            {(
               <Card className="border-border bg-card p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-card-foreground">
@@ -277,7 +281,7 @@ export function CustomizerWorkshop() {
                 <div className="space-y-4">
                   {/* 3D Viewer Component */}
                   <Model3DViewer 
-                    modelUrl={model3dUrl} 
+                    modelUrl="" 
                     showControls={true}
                     autoRotate={false}
                     className="h-[600px]"
