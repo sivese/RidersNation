@@ -5,6 +5,7 @@ import { Upload, RotateCcw, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Model3DViewer, ModelOption } from "@/three/3d-viewer"
+import { fileToBase64 } from "@/lib/base64"
 
 interface TaskStatus {
   id: string;
@@ -81,7 +82,7 @@ export function CustomizerWorkshop() {
   };
 
   // WebSocket 연결
-  const connectWebSocket = (taskId: string, partType: string) => {
+  const connectWebSocket = (taskId: string, partType: string, thumbImage: string) => {
     const ws = new WebSocket(`ws://127.0.0.1:8080/api/3d/ws/${taskId}`);
     wsRefs.current.set(partType, ws);
 
@@ -103,7 +104,7 @@ export function CustomizerWorkshop() {
             id: taskId,
             name: getPartDisplayName(partType),
             url: proxyUrl,
-            thumbnail: motorcycleImage || undefined,
+            thumbnail: thumbImage || undefined,
             partType: partType,
           };
           
@@ -182,7 +183,11 @@ export function CustomizerWorkshop() {
       const taskId = data.task_id;
       
       updatePartStatus(partType, { taskId });
-      connectWebSocket(taskId, partType);
+
+      const imgFile = extractedData.get('image_motorcycle') as File;
+      const base64image = await fileToBase64(imgFile);
+
+      connectWebSocket(taskId, partType, base64image);
       
     } catch (err) {
       console.error(`Error generating ${partType}:`, err);
