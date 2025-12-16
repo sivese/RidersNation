@@ -258,7 +258,7 @@ export function Model3DViewer({
 
         model.scale.multiplyScalar(scale);
         model.position.x = -center.x * scale;
-        model.position.y = -center.y * scale;
+        model.position.y = -box.min.y * scale;
         model.position.z = -center.z * scale;
 
         scene.add(model);
