@@ -84,6 +84,7 @@ export function Model3DViewer({
 }: Model3DViewerProps) {
   
   // Refs
+  const garageRef = useRef<THREE.Group | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -153,8 +154,29 @@ export function Model3DViewer({
     controlsRef.current = controls;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
+
+    // 2. Spot Light - 중앙 바이크를 위에서 비추는 메인 조명
+    const spotLight = new THREE.SpotLight(0xffffff, 2);
+    spotLight.position.set(0, 10, 0); // 바로 위에서
+    spotLight.angle = Math.PI / 6; // 조명 각도 (좁을수록 집중)
+    spotLight.penumbra = 0.5; // 가장자리 부드럽게
+    spotLight.decay = 1.5;
+    spotLight.distance = 30;
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+    scene.add(spotLight);
+
+    // SpotLight 타겟 (바이크 위치)
+    spotLight.target.position.set(0, 0, 0);
+    scene.add(spotLight.target);
+
+    // 3. (선택) 보조 포인트 라이트 - 살짝 따뜻한 느낌
+    const warmLight = new THREE.PointLight(0xffaa55, 0.3);
+    warmLight.position.set(5, 3, 5);
+    scene.add(warmLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(5, 10, 5);
@@ -164,6 +186,14 @@ export function Model3DViewer({
     // Grid
     const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
     scene.add(gridHelper);
+
+    const garageLoader = new GLTFLoader();
+    garageLoader.load('/models/garage.glb', (gltf) => {
+      const garage = gltf.scene;
+      garage.position.set(0, 0, 0);
+      garage.scale.set(1, 1, 1); // 나중에 조정
+      scene.add(garage);
+    });
 
     // Animation loop
     const animate = () => {
@@ -250,6 +280,7 @@ export function Model3DViewer({
       }
     );
   }, [currentModelUrl]);
+  
 
   // 뷰 모드 변경시 적용
   useEffect(() => {
