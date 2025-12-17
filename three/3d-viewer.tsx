@@ -35,31 +35,10 @@ interface LightingSettings {
 
 type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
 
-const createGrayscaleShader = () => {
+const createGrayscaleShader = async () => {
   return {
-    vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float ambientIntensity;
-      uniform float directionalIntensity;
-      uniform vec3 lightDirection;
-      varying vec3 vNormal;
-      void main() {
-        vec3 normal = normalize(vNormal);
-        vec3 lightDir = normalize(lightDirection);
-        float ambient = ambientIntensity;
-        float diff = max(dot(normal, lightDir), 0.0);
-        float diffuse = diff * directionalIntensity;
-        float brightness = clamp(ambient + diffuse, 0.0, 1.0);
-        vec3 gray = vec3(brightness * 0.7);
-        gl_FragColor = vec4(gray, 1.0);
-      }
-    `
+    vertexShader: await fetch('/shaders/vertex_gray_scale.glsl').then(r => r.text()),
+    fragmentShader: await fetch('/shaders/fragment_gray_scale.glsl').then(r => r.text()),
   };
 };
 
@@ -84,7 +63,7 @@ export function Model3DViewer({
 }: Model3DViewerProps) {
   
   // Refs
-  const garageRef = useRef<THREE.Group | null>(null);
+  //const garageRef = useRef<THREE.Group | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -105,47 +84,41 @@ export function Model3DViewer({
     directionalZ: 5,
   });
 
-  // 선택된 모델의 URL 계산 (부모에서 관리하는 selectedModelId 사용)
   const currentModelUrl = selectedModelId 
     ? modelOptions.find(m => m.id === selectedModelId)?.url 
     : modelOptions[0]?.url || null;
 
-  // Three.js 초기화
+  // Three.js initialization
   useEffect(() => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-
-    // 기존 캔버스 제거
     const existingCanvas = container.querySelector('canvas');
     if (existingCanvas) {
       container.removeChild(existingCanvas);
     }
 
-    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf5f5f5);
     sceneRef.current = scene;
 
-    // Camera
     const camera = new THREE.PerspectiveCamera(
       75,
       container.clientWidth / container.clientHeight,
       0.1,
       1000
     );
+
     camera.position.set(0, 5, 8);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -153,11 +126,9 @@ export function Model3DViewer({
     controls.autoRotateSpeed = 4;
     controlsRef.current = controls;
 
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
 
-    // 2. Spot Light - 중앙 바이크를 위에서 비추는 메인 조명
     const spotLight = new THREE.SpotLight(0xffffff, 2);
     spotLight.position.set(0, 10, 0); // 바로 위에서
     spotLight.angle = Math.PI / 6; // 조명 각도 (좁을수록 집중)
@@ -187,20 +158,13 @@ export function Model3DViewer({
     const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
     scene.add(gridHelper);
 
-    const garageLoader = new GLTFLoader();
-    garageLoader.load('/models/garage.glb', (gltf) => {
-      const garage = gltf.scene;
-      garage.position.set(0, 0, 0);
-      garage.scale.set(1, 1, 1); // 나중에 조정
-      scene.add(garage);
-    });
-
     // Animation loop
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
+
     animate();
 
     // Resize handler
@@ -437,7 +401,7 @@ export function Model3DViewer({
                       )}
                     </div>
 
-                    {/* 삭제 버튼 */}
+                    {/* delete button */}
                     {onModelDelete && (
                       <button
                         onClick={(e) => {
@@ -456,7 +420,7 @@ export function Model3DViewer({
           </div>
         )}
 
-        {/* 모델 없을 때 안내 */}
+        {/* information when no models */}
         {modelOptions.length === 0 && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-gray-400">
@@ -467,7 +431,7 @@ export function Model3DViewer({
           </div>
         )}
 
-        {/* 로딩 오버레이 */}
+        {/* loading overlay */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
             <div className="text-white text-center">

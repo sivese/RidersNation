@@ -6,15 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Model3DViewer, ModelOption } from "@/three/3d-viewer"
 import { fileToBase64 } from "@/lib/base64"
+import { set } from "date-fns"
+import { Input } from "./ui/input"
 
-interface TaskStatus {
-  id: string;
-  status: string;
-  progress?: number;
-  partType: string;
-}
-
-// 파트별 생성 상태 추적
 interface PartGenerationStatus {
   partType: string;
   taskId: string | null;
@@ -25,7 +19,6 @@ interface PartGenerationStatus {
 export function CustomizerWorkshop() {
   const [motorcycleImage, setMotorcycleImage] = useState<string | null>(null);
   
-  // 파트별 상태 관리
   const [partStatuses, setPartStatuses] = useState<PartGenerationStatus[]>([
     { partType: 'exhaust', taskId: null, status: 'idle', progress: 0 },
     { partType: 'seat', taskId: null, status: 'idle', progress: 0 },
@@ -37,10 +30,9 @@ export function CustomizerWorkshop() {
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   
   //debugging states
-  const [debugMode, setDebugMode] = useState(false); // 디버깅 모드
+  const [debugMode, setDebugMode] = useState(true);
   const [debugModelUrl, setDebugModelUrl] = useState('');
 
-  // 디버그 모델 추가 함수
   const addDebugModel = () => {
     if (!debugModelUrl.trim()) return;
     
@@ -56,13 +48,10 @@ export function CustomizerWorkshop() {
     setDebugModelUrl('');
   };
 
-  // 샘플 모델 로드 (무료 glTF 샘플)
   const loadSampleModel = () => {
+
     const sampleModels = [
       { name: 'Duck', url: '/models/1.glb' },
-      { name: 'Box', url: '/models/2.glb' },
-      { name: 'Avocado', url: '/models/3.glb' },
-      { name: 'Flight Helmet', url: '/models/4.glb' },
     ];
     
     const sample = sampleModels[Math.floor(Math.random() * sampleModels.length)];
@@ -76,7 +65,26 @@ export function CustomizerWorkshop() {
     
     setGeneratedModels(prev => [...prev, newModel]);
     setSelectedModelId(newModel.id);
-};
+  };
+
+  const loadLocalModel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if(!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+
+    const newModel : ModelOption = {
+      id: `local-${Date.now()}`,
+      name: `📁 ${file.name}`,
+      url: localUrl,
+      partType: 'local',
+    }
+
+    setGeneratedModels(prev => [...prev, newModel]);
+    setSelectedModelId(newModel.id);
+  }
+
   const wsRefs = useRef<Map<string, WebSocket>>(new Map());
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,20 +275,9 @@ export function CustomizerWorkshop() {
     return names[partType] || partType;
   };
 
-  const getPartColor = (partType: string): string => {
-    const colors: Record<string, string> = {
-      'exhaust': 'blue',
-      'seat': 'green',
-      'frame': 'purple',
-      'full-bike': 'orange',
-    };
-    return colors[partType] || 'gray';
-  };
-
   // 전체 진행률 계산
   const isGenerating = partStatuses.some(p => p.status === 'extracting' || p.status === 'generating');
   const completedCount = partStatuses.filter(p => p.status === 'completed').length;
-  const totalProgress = partStatuses.reduce((sum, p) => sum + p.progress, 0) / partStatuses.length;
 
   useEffect(() => {
     return () => {
@@ -288,6 +285,7 @@ export function CustomizerWorkshop() {
     };
   }, []);
 
+  // Shitty HTML
   return (
     <section id="customizer" className="border-b border-border py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -319,16 +317,16 @@ export function CustomizerWorkshop() {
                 <div className="space-y-4">
                   {/* URL 입력 */}
                   <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={debugModelUrl}
-                      onChange={(e) => setDebugModelUrl(e.target.value)}
-                      placeholder="Enter .glb model URL..."
-                      className="flex-1 px-3 py-2 border rounded-lg text-sm"
-                    />
-                    <Button onClick={addDebugModel} size="sm">
-                      Load URL
-                    </Button>
+                    <label style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#4a90d9',
+                      color: 'white',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}>
+                      📁 Load Model File
+                      <Input onChange={loadLocalModel} type="file" accept=".glb" className="hidden" id="local-model-input"/>
+                    </label>
                   </div>
                   
                   {/* 샘플 모델 버튼 */}
