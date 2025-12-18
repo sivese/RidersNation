@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { showBoundingBox } from "./modular-system"
+import { Mouse } from "./mouse"
 
 export interface ModelOption {
   id: string;
@@ -34,6 +36,7 @@ interface LightingSettings {
 }
 
 type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
+type EditMode = 'View' | 'Move';
 
 const createGrayscaleShader = async () => {
   return {
@@ -62,12 +65,26 @@ export function Model3DViewer({
   autoRotate = false 
 }: Model3DViewerProps) {
   
-  // Refs
   //const garageRef = useRef<THREE.Group | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // three really basic components
   const sceneRef = useRef<THREE.Scene | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  
+  /* 
+    raycaster and mouse vector 
+    drag state management
+  */
+  const raycasterRef = useRef<THREE.Raycaster | null>(new THREE.Raycaster());
+  const mouseRef = useRef<Mouse | null>(new Mouse());
+
+  let selectedObjectRef = useRef<THREE.Object3D | null>(null);
+  let isDraggingRef = useRef<boolean>(false);
+  const planeRef = useRef<THREE.Plane | null>(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
+  const intersectionRef = useRef<THREE.Vector3 | null>(new THREE.Vector3());
+
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -118,6 +135,42 @@ export function Model3DViewer({
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    /*
+      Renderer and mouse event listeners for drag-drop
+      Pile of bomb here...
+    */
+    renderer.domElement.addEventListener('mousedown', (e) => {
+      mouseRef.current?.updatePosition(e);
+      raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
+
+      const intersect = raycasterRef.current?.intersectObjects(scene.children);
+
+      if(intersect && intersect.length > 0) {
+        selectedObjectRef.current = intersect[0].object;
+        isDraggingRef.current = true;
+
+        planeRef.current?.setFromNormalAndCoplanarPoint(
+          camera.getWorldDirection(new THREE.Vector3()).negate(),
+          selectedObjectRef.current.position
+        );
+      }
+    });
+
+    renderer.domElement.addEventListener('mousemove', (e) => {
+      if(!isDraggingRef.current || !selectedObjectRef.current) return;
+
+      mouseRef.current?.updatePosition(e);
+      raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
+      if(raycasterRef.current?.ray.intersectPlane(planeRef.current!, intersectionRef.current!)) {
+        selectedObjectRef.current.position.copy(intersectionRef.current!);
+      }
+    });
+
+    renderer.domElement.addEventListener('mouseup', () => {
+      isDraggingRef.current = false;
+      selectedObjectRef.current = null;
+    });
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -232,6 +285,8 @@ export function Model3DViewer({
         model.position.y = -center.y * scale;
         model.position.z = -center.z * scale;
 
+        showBoundingBox(model, scene);
+        
         scene.add(model);
         modelRef.current = model;
         setIsLoading(false);
@@ -444,3 +499,4 @@ export function Model3DViewer({
     </div>
   );
 }
+
