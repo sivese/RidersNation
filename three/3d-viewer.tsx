@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRef, useEffect, useState } from "react"
 import { Palette, Grid3x3, Box, Eye, X } from "lucide-react"
@@ -48,21 +48,43 @@ const createGrayscaleShader = async () => {
 // 파트 타입별 색상
 const getPartTypeStyle = (partType?: string) => {
   const styles: Record<string, { bg: string; text: string; border: string }> = {
-    'exhaust': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-500' },
-    'seat': { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-500' },
-    'frame': { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-500' },
-    'full-bike': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-500' },
+    exhaust: {
+      bg: "bg-blue-100",
+      text: "text-blue-700",
+      border: "border-blue-500",
+    },
+    seat: {
+      bg: "bg-green-100",
+      text: "text-green-700",
+      border: "border-green-500",
+    },
+    frame: {
+      bg: "bg-purple-100",
+      text: "text-purple-700",
+      border: "border-purple-500",
+    },
+    "full-bike": {
+      bg: "bg-orange-100",
+      text: "text-orange-700",
+      border: "border-orange-500",
+    },
   };
-  return styles[partType || ''] || { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-500' };
+  return (
+    styles[partType || ""] || {
+      bg: "bg-gray-100",
+      text: "text-gray-700",
+      border: "border-gray-500",
+    }
+  );
 };
 
-export function Model3DViewer({ 
+export function Model3DViewer({
   modelOptions = [],
   selectedModelId,
   onModelSelect,
   onModelDelete,
-  className = "", 
-  autoRotate = false 
+  className = "",
+  autoRotate = false,
 }: Model3DViewerProps) {
   
   //const garageRef = useRef<THREE.Group | null>(null);
@@ -88,11 +110,13 @@ export function Model3DViewer({
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const originalMaterialsRef = useRef<Map<THREE.Mesh, THREE.Material | THREE.Material[]>>(new Map());
+  const originalMaterialsRef = useRef<
+    Map<THREE.Mesh, THREE.Material | THREE.Material[]>
+  >(new Map());
 
   // State
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('normal');
+  const [viewMode, setViewMode] = useState<ViewMode>("normal");
   const [lightingSettings] = useState<LightingSettings>({
     ambientIntensity: 0.5,
     directionalIntensity: 0.8,
@@ -101,8 +125,9 @@ export function Model3DViewer({
     directionalZ: 5,
   });
 
-  const currentModelUrl = selectedModelId 
-    ? modelOptions.find(m => m.id === selectedModelId)?.url 
+  // 선택된 모델의 URL 계산 (부모에서 관리하는 selectedModelId 사용)
+  const currentModelUrl = selectedModelId
+    ? modelOptions.find((m) => m.id === selectedModelId)?.url
     : modelOptions[0]?.url || null;
 
   // Three.js initialization
@@ -110,7 +135,9 @@ export function Model3DViewer({
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-    const existingCanvas = container.querySelector('canvas');
+
+    // 기존 캔버스 제거
+    const existingCanvas = container.querySelector("canvas");
     if (existingCanvas) {
       container.removeChild(existingCanvas);
     }
@@ -229,11 +256,11 @@ export function Model3DViewer({
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Cleanup
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -273,16 +300,16 @@ export function Model3DViewer({
           }
         });
 
-        // 모델 중앙 정렬 및 스케일 조정
+        // 모델 중앙 정렬 및 스케일 조정 (석균-그리드와 박스 위치 조정 예정)
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const scale = 3 / maxDim;
-        
+
         model.scale.multiplyScalar(scale);
         model.position.x = -center.x * scale;
-        model.position.y = -center.y * scale;
+        model.position.y = -box.min.y * scale;
         model.position.z = -center.z * scale;
 
         showBoundingBox(model, scene);
@@ -294,7 +321,7 @@ export function Model3DViewer({
       },
       undefined,
       (error) => {
-        console.error('Error loading model:', error);
+        console.error("Error loading model:", error);
         setIsLoading(false);
       }
     );
@@ -316,36 +343,38 @@ export function Model3DViewer({
         if (!originalMaterial) return;
 
         switch (mode) {
-          case 'normal':
+          case "normal":
             mesh.material = originalMaterial;
             if (mesh.material instanceof THREE.MeshStandardMaterial) {
               mesh.material.wireframe = false;
             }
             break;
 
-          case 'wireframe':
+          case "wireframe":
             mesh.material = originalMaterial;
             if (mesh.material instanceof THREE.MeshStandardMaterial) {
               mesh.material.wireframe = true;
             }
             break;
 
-          case 'grayscale':
-          case 'wireframe-grayscale':
+          case "grayscale":
+          case "wireframe-grayscale":
             mesh.material = new THREE.ShaderMaterial({
               ...createGrayscaleShader(),
-              wireframe: mode === 'wireframe-grayscale',
+              wireframe: mode === "wireframe-grayscale",
               uniforms: {
                 ambientIntensity: { value: lightingSettings.ambientIntensity },
-                directionalIntensity: { value: lightingSettings.directionalIntensity },
-                lightDirection: { 
-                  value: new THREE.Vector3(
-                    lightingSettings.directionalX, 
-                    lightingSettings.directionalY, 
-                    lightingSettings.directionalZ
-                  ).normalize() 
+                directionalIntensity: {
+                  value: lightingSettings.directionalIntensity,
                 },
-              }
+                lightDirection: {
+                  value: new THREE.Vector3(
+                    lightingSettings.directionalX,
+                    lightingSettings.directionalY,
+                    lightingSettings.directionalZ
+                  ).normalize(),
+                },
+              },
             });
             break;
         }
@@ -358,36 +387,36 @@ export function Model3DViewer({
       {/* 뷰 모드 버튼들 */}
       <div className="mb-4 flex gap-2 flex-wrap">
         <Button
-          variant={viewMode === 'normal' ? 'default' : 'outline'}
+          variant={viewMode === "normal" ? "default" : "outline"}
           size="sm"
-          onClick={() => setViewMode('normal')}
+          onClick={() => setViewMode("normal")}
           className="gap-2"
         >
           <Eye className="h-4 w-4" />
           Normal
         </Button>
         <Button
-          variant={viewMode === 'wireframe' ? 'default' : 'outline'}
+          variant={viewMode === "wireframe" ? "default" : "outline"}
           size="sm"
-          onClick={() => setViewMode('wireframe')}
+          onClick={() => setViewMode("wireframe")}
           className="gap-2"
         >
           <Grid3x3 className="h-4 w-4" />
           Wireframe
         </Button>
         <Button
-          variant={viewMode === 'grayscale' ? 'default' : 'outline'}
+          variant={viewMode === "grayscale" ? "default" : "outline"}
           size="sm"
-          onClick={() => setViewMode('grayscale')}
+          onClick={() => setViewMode("grayscale")}
           className="gap-2"
         >
           <Palette className="h-4 w-4" />
           Grayscale
         </Button>
         <Button
-          variant={viewMode === 'wireframe-grayscale' ? 'default' : 'outline'}
+          variant={viewMode === "wireframe-grayscale" ? "default" : "outline"}
           size="sm"
-          onClick={() => setViewMode('wireframe-grayscale')}
+          onClick={() => setViewMode("wireframe-grayscale")}
           className="gap-2"
         >
           <Box className="h-4 w-4" />
@@ -401,7 +430,7 @@ export function Model3DViewer({
         <div
           ref={containerRef}
           className="relative w-full bg-gray-100 rounded-lg overflow-hidden border border-border"
-          style={{ minHeight: '600px' }}
+          style={{ minHeight: "600px" }}
         />
 
         {/* 오른쪽 상단 모델 선택 패널 */}
@@ -414,43 +443,48 @@ export function Model3DViewer({
               {modelOptions.map((model) => {
                 const style = getPartTypeStyle(model.partType);
                 const isSelected = selectedModelId === model.id;
-                
+
                 return (
                   <div
                     key={model.id}
                     className={`
                       relative flex items-center gap-3 p-2 rounded-lg transition-all cursor-pointer
                       hover:shadow-md
-                      ${isSelected 
-                        ? `${style.bg} border-2 ${style.border}` 
-                        : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                      ${
+                        isSelected
+                          ? `${style.bg} border-2 ${style.border}`
+                          : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
                       }
                     `}
                     onClick={() => onModelSelect?.(model.id)}
                   >
                     {/* 썸네일 */}
                     {model.thumbnail ? (
-                      <img 
-                        src={model.thumbnail} 
+                      <img
+                        src={model.thumbnail}
                         alt={model.name}
                         className="w-12 h-12 object-cover rounded-md"
                       />
                     ) : (
-                      <div className={`w-12 h-12 rounded-md flex items-center justify-center ${style.bg}`}>
+                      <div
+                        className={`w-12 h-12 rounded-md flex items-center justify-center ${style.bg}`}
+                      >
                         <Box className={`h-6 w-6 ${style.text}`} />
                       </div>
                     )}
-                    
+
                     {/* 모델 정보 */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">
                         {model.name}
                       </p>
                       {model.partType && (
-                        <span className={`
+                        <span
+                          className={`
                           inline-block text-xs px-2 py-0.5 rounded-full mt-1
                           ${style.bg} ${style.text}
-                        `}>
+                        `}
+                        >
                           {model.partType}
                         </span>
                       )}
@@ -499,4 +533,3 @@ export function Model3DViewer({
     </div>
   );
 }
-
