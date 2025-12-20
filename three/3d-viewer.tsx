@@ -1,6 +1,7 @@
 "use client";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useRef, useEffect, useState } from "react";
 import { Palette, Grid3x3, Box, Eye, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 =======
+=======
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
 import { useRef, useEffect, useState } from "react"
 import { Palette, Grid3x3, Box, Eye, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +19,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { showBoundingBox } from "./modular-system"
 import { Mouse } from "./mouse"
+<<<<<<< HEAD
 >>>>>>> main
+=======
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
 
 export interface ModelOption {
   id: string;
@@ -44,6 +50,7 @@ interface LightingSettings {
   directionalZ: number;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 type ViewMode = "normal" | "wireframe" | "grayscale" | "wireframe-grayscale";
 =======
@@ -81,6 +88,15 @@ const createGrayscaleShader = async () => {
     vertexShader: await fetch('/shaders/vertex_gray_scale.glsl').then(r => r.text()),
     fragmentShader: await fetch('/shaders/fragment_gray_scale.glsl').then(r => r.text()),
 >>>>>>> main
+=======
+type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
+type EditMode = 'View' | 'Move';
+
+const createGrayscaleShader = async () => {
+  return {
+    vertexShader: await fetch('/shaders/vertex_gray_scale.glsl').then(r => r.text()),
+    fragmentShader: await fetch('/shaders/fragment_gray_scale.glsl').then(r => r.text()),
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
   };
 };
 
@@ -126,11 +142,16 @@ export function Model3DViewer({
   autoRotate = false,
 }: Model3DViewerProps) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   // Refs
 =======
   
   //const garageRef = useRef<THREE.Group | null>(null);
 >>>>>>> main
+=======
+  
+  //const garageRef = useRef<THREE.Group | null>(null);
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
   const containerRef = useRef<HTMLDivElement>(null);
   
   // three really basic components
@@ -169,6 +190,7 @@ export function Model3DViewer({
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   // 선택된 모델의 URL 계산 (부모에서 관리하는 selectedModelId 사용)
   const currentModelUrl = selectedModelId
     ? modelOptions.find((m) => m.id === selectedModelId)?.url
@@ -176,6 +198,11 @@ export function Model3DViewer({
   const currentModelUrl = selectedModelId 
     ? modelOptions.find(m => m.id === selectedModelId)?.url 
 >>>>>>> main
+=======
+  // 선택된 모델의 URL 계산 (부모에서 관리하는 selectedModelId 사용)
+  const currentModelUrl = selectedModelId
+    ? modelOptions.find((m) => m.id === selectedModelId)?.url
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
     : modelOptions[0]?.url || null;
 
   // Three.js initialization
@@ -184,12 +211,18 @@ export function Model3DViewer({
 
     const container = containerRef.current;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     // 기존 캔버스 제거
     const existingCanvas = container.querySelector("canvas");
 =======
     const existingCanvas = container.querySelector('canvas');
 >>>>>>> main
+=======
+
+    // 기존 캔버스 제거
+    const existingCanvas = container.querySelector("canvas");
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
     if (existingCanvas) {
       container.removeChild(existingCanvas);
     }
@@ -586,6 +619,9 @@ export function Model3DViewer({
   );
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> main
+=======
+>>>>>>> 92707dd9bd7d256e4e7a1993a5fd29ae4b426947
