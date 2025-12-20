@@ -7,6 +7,9 @@ import { Upload, RotateCcw, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
+/*
+  Legacy
+*/
 export function CustomizerTool() {
   const [dummyState, setDummyState] = useState(false); // Forcing re-render if needed
   const [isGenerating, setIsGenerating] = useState(false);

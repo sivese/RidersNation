@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { Palette, Grid3x3, Box, Eye, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { useRef, useEffect, useState } from "react"
+import { Palette, Grid3x3, Box, Eye, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { showBoundingBox } from "./modular-system"
+import { Mouse } from "./mouse"
 
 export interface ModelOption {
   id: string;
@@ -33,33 +35,13 @@ interface LightingSettings {
   directionalZ: number;
 }
 
-type ViewMode = "normal" | "wireframe" | "grayscale" | "wireframe-grayscale";
+type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
+type EditMode = 'View' | 'Move';
 
-const createGrayscaleShader = () => {
+const createGrayscaleShader = async () => {
   return {
-    vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float ambientIntensity;
-      uniform float directionalIntensity;
-      uniform vec3 lightDirection;
-      varying vec3 vNormal;
-      void main() {
-        vec3 normal = normalize(vNormal);
-        vec3 lightDir = normalize(lightDirection);
-        float ambient = ambientIntensity;
-        float diff = max(dot(normal, lightDir), 0.0);
-        float diffuse = diff * directionalIntensity;
-        float brightness = clamp(ambient + diffuse, 0.0, 1.0);
-        vec3 gray = vec3(brightness * 0.7);
-        gl_FragColor = vec4(gray, 1.0);
-      }
-    `,
+    vertexShader: await fetch('/shaders/vertex_gray_scale.glsl').then(r => r.text()),
+    fragmentShader: await fetch('/shaders/fragment_gray_scale.glsl').then(r => r.text()),
   };
 };
 
@@ -104,11 +86,27 @@ export function Model3DViewer({
   className = "",
   autoRotate = false,
 }: Model3DViewerProps) {
-  // Refs
+  
+  //const garageRef = useRef<THREE.Group | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // three really basic components
   const sceneRef = useRef<THREE.Scene | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  
+  /* 
+    raycaster and mouse vector 
+    drag state management
+  */
+  const raycasterRef = useRef<THREE.Raycaster | null>(new THREE.Raycaster());
+  const mouseRef = useRef<Mouse | null>(new Mouse());
+
+  let selectedObjectRef = useRef<THREE.Object3D | null>(null);
+  let isDraggingRef = useRef<boolean>(false);
+  const planeRef = useRef<THREE.Plane | null>(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
+  const intersectionRef = useRef<THREE.Vector3 | null>(new THREE.Vector3());
+
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -132,7 +130,7 @@ export function Model3DViewer({
     ? modelOptions.find((m) => m.id === selectedModelId)?.url
     : modelOptions[0]?.url || null;
 
-  // Three.js 초기화
+  // Three.js initialization
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -144,30 +142,63 @@ export function Model3DViewer({
       container.removeChild(existingCanvas);
     }
 
-    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf5f5f5);
     sceneRef.current = scene;
 
-    // Camera
     const camera = new THREE.PerspectiveCamera(
       75,
       container.clientWidth / container.clientHeight,
       0.1,
       1000
     );
+
     camera.position.set(0, 5, 8);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Controls
+    /*
+      Renderer and mouse event listeners for drag-drop
+      Pile of bomb here...
+    */
+    renderer.domElement.addEventListener('mousedown', (e) => {
+      mouseRef.current?.updatePosition(e);
+      raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
+
+      const intersect = raycasterRef.current?.intersectObjects(scene.children);
+
+      if(intersect && intersect.length > 0) {
+        selectedObjectRef.current = intersect[0].object;
+        isDraggingRef.current = true;
+
+        planeRef.current?.setFromNormalAndCoplanarPoint(
+          camera.getWorldDirection(new THREE.Vector3()).negate(),
+          selectedObjectRef.current.position
+        );
+      }
+    });
+
+    renderer.domElement.addEventListener('mousemove', (e) => {
+      if(!isDraggingRef.current || !selectedObjectRef.current) return;
+
+      mouseRef.current?.updatePosition(e);
+      raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
+      if(raycasterRef.current?.ray.intersectPlane(planeRef.current!, intersectionRef.current!)) {
+        selectedObjectRef.current.position.copy(intersectionRef.current!);
+      }
+    });
+
+    renderer.domElement.addEventListener('mouseup', () => {
+      isDraggingRef.current = false;
+      selectedObjectRef.current = null;
+    });
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -175,9 +206,28 @@ export function Model3DViewer({
     controls.autoRotateSpeed = 4;
     controlsRef.current = controls;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
+
+    const spotLight = new THREE.SpotLight(0xffffff, 2);
+    spotLight.position.set(0, 10, 0); // 바로 위에서
+    spotLight.angle = Math.PI / 6; // 조명 각도 (좁을수록 집중)
+    spotLight.penumbra = 0.5; // 가장자리 부드럽게
+    spotLight.decay = 1.5;
+    spotLight.distance = 30;
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+    scene.add(spotLight);
+
+    // SpotLight 타겟 (바이크 위치)
+    spotLight.target.position.set(0, 0, 0);
+    scene.add(spotLight.target);
+
+    // 3. (선택) 보조 포인트 라이트 - 살짝 따뜻한 느낌
+    const warmLight = new THREE.PointLight(0xffaa55, 0.3);
+    warmLight.position.set(5, 3, 5);
+    scene.add(warmLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(5, 10, 5);
@@ -194,6 +244,7 @@ export function Model3DViewer({
       controls.update();
       renderer.render(scene, camera);
     };
+
     animate();
 
     // Resize handler
@@ -261,6 +312,8 @@ export function Model3DViewer({
         model.position.y = -box.min.y * scale;
         model.position.z = -center.z * scale;
 
+        showBoundingBox(model, scene);
+        
         scene.add(model);
         modelRef.current = model;
         setIsLoading(false);
@@ -273,6 +326,7 @@ export function Model3DViewer({
       }
     );
   }, [currentModelUrl]);
+  
 
   // 뷰 모드 변경시 적용
   useEffect(() => {
@@ -436,7 +490,7 @@ export function Model3DViewer({
                       )}
                     </div>
 
-                    {/* 삭제 버튼 */}
+                    {/* delete button */}
                     {onModelDelete && (
                       <button
                         onClick={(e) => {
@@ -455,7 +509,7 @@ export function Model3DViewer({
           </div>
         )}
 
-        {/* 모델 없을 때 안내 */}
+        {/* information when no models */}
         {modelOptions.length === 0 && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-gray-400">
@@ -466,7 +520,7 @@ export function Model3DViewer({
           </div>
         )}
 
-        {/* 로딩 오버레이 */}
+        {/* loading overlay */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
             <div className="text-white text-center">
