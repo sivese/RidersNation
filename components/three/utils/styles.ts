@@ -1,4 +1,4 @@
-const getPartTypeStyle = (partType?: string) => {
+export const getPartTypeStyle = (partType?: string) => {
   const styles: Record<string, { bg: string; text: string; border: string }> = {
     exhaust: {
       bg: "bg-blue-100",

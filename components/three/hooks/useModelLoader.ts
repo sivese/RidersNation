@@ -29,51 +29,51 @@ export function useModelLoader({ scene, modelUrl }: UseModelLoaderParams) {
 
         const loader = new GLTFLoader();
 
-        loader.load(
-            modelUrl,
-            (gltf) => {
-            const model = gltf.scene;
+            loader.load(
+                modelUrl,
+                (gltf) => {
+                    const model = gltf.scene;
 
-            // 머티리얼 저장 및 그림자 설정
-            model.traverse((child) => {
-                if ((child as THREE.Mesh).isMesh) {
-                const mesh = child as THREE.Mesh;
-                originalMaterialsRef.current.set(mesh, mesh.material);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                }
-            });
+                    // 머티리얼 저장 및 그림자 설정
+                    model.traverse((child) => {
+                        if ((child as THREE.Mesh).isMesh) {
+                        const mesh = child as THREE.Mesh;
+                        originalMaterialsRef.current.set(mesh, mesh.material);
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+                        }
+                    });
 
-            // 모델 중앙 정렬 및 스케일 조정
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 3 / maxDim;
+                    // 모델 중앙 정렬 및 스케일 조정
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim;
 
-            model.scale.multiplyScalar(scale);
-            model.position.x = -center.x * scale;
-            model.position.y = -center.y * scale;
-            model.position.z = -center.z * scale;
+                    model.scale.multiplyScalar(scale);
+                    model.position.x = -center.x * scale;
+                    model.position.y = -center.y * scale;
+                    model.position.z = -center.z * scale;
 
-            showBoundingBox(model, scene);
+                    showBoundingBox(model, scene);
 
-            scene.add(model);
-            modelRef.current = model;
-            setIsLoading(false);
-            },
-            undefined,
-            (err) => {
-            console.error('Error loading model:', err);
-            setError(err instanceof Error ? err : new Error('Failed to load model'));
-            setIsLoading(false);
-            }
-        );
+                    scene.add(model);
+                    modelRef.current = model;
+                    setIsLoading(false);
+                    },
+                    undefined,
+                    (err) => {
+                        console.error('Error loading model:', err);
+                        setError(err instanceof Error ? err : new Error('Failed to load model'));
+                        setIsLoading(false);
+                    }
+                );
 
-        // cleanup
-        return () => {
-            if (modelRef.current && scene) {
-            scene.remove(modelRef.current);
+            // cleanup
+            return () => {
+                if (modelRef.current && scene) {
+                scene.remove(modelRef.current);
             }
         };
     }, [modelUrl, scene]);
