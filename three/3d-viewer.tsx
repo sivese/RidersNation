@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { showBoundingBox } from "./modular-system"
+import { showBoundingBox } from "../components/three/utils/modular-system"
 import { Mouse } from "./mouse"
 
 export interface ModelOption {
