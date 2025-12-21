@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, RotateCcw, Box } from "lucide-react"; // 아이콘
+// 1. Wrench 아이콘 추가
+import { Upload, X, Wrench } from "lucide-react";
 
 const LOADING_STAGES = [
   { limit: 25, text: "Scanning Image Structure..." },
@@ -10,12 +11,15 @@ const LOADING_STAGES = [
   { limit: 100, text: "Finalizing Textures..." },
 ];
 
+// 2. 인터페이스 하나로 통합
 interface CustomizerHeroProps {
+  onDebugClick?: () => void;
   onVisualizationComplete?: (imageUrl: string) => void;
 }
 
 export function CustomizerHero({
   onVisualizationComplete,
+  onDebugClick, // 3. 여기서 onDebugClick을 받아와야 아래에서 쓸 수 있습니다.
 }: CustomizerHeroProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -157,7 +161,14 @@ export function CustomizerHero({
               onClick={startVisualization}
               className="flex items-center gap-3 rounded-full bg-[#2A2A2A] px-8 py-3 font-bold text-white hover:bg-[#333] hover:scale-105 active:scale-95 transition-all"
             >
-              <Box className="text-blue-500 h-5 w-5" /> VISUALIZE
+              {/* 기존 Box 아이콘 대신 img 태그 사용 */}
+              {/* src="/파일이름.png" 부분에 실제 업로드한 PNG 파일명을 적어주세요 */}
+              <img
+                src="/cube.png" // 예시: image_4.png (실제 파일명으로 변경 필요)
+                alt="Visualize Icon"
+                className="h-6 w-6 object-contain" // 크기 조절 및 비율 유지 클래스
+              />
+              VISUALIZE
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -173,6 +184,17 @@ export function CustomizerHero({
             </button>
           </div>
         )}
+
+        {/* Debug Button */}
+        <div className="absolute -bottom-16 left-0 right-0 z-20 flex flex-col items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
+          <button
+            onClick={onDebugClick}
+            className="flex items-center gap-2 text-xs text-gray-500 hover:text-blue-400 underline decoration-dotted underline-offset-4"
+          >
+            <Wrench className="h-3 w-3" />
+            Developer Debug Mode
+          </button>
+        </div>
       </div>
     </section>
   );

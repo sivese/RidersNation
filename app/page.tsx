@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, X } from "lucide-react"; // 아이콘 (없으면 텍스트로 대체됨)
+import { Settings, X } from "lucide-react";
 
 // 컴포넌트 import
 import { SplashScreen } from "@/components/pages/splash-screen";
 import { WalkthroughScreen } from "@/components/pages/walkthrough-screen";
 import { CustomizerHero } from "@/components/customizer-hero";
-import { CustomizerWorkshop } from "@/components/customizer-workshop";
-import { CustomizerFeatures } from "@/components/customizer-features";
+import { WorkshopModal } from "@/components/workshop-modal"; // ✨ 새로 만든 모달 컴포넌트
 
 export default function Home() {
   // 화면 상태: 'splash' -> 'walkthrough' -> 'home'
@@ -19,28 +18,25 @@ export default function Home() {
   // 데이터 전달: Hero -> Workshop
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
+  // ✨ 팝업 모달 상태 추가
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // 디버그 패널 토글 상태
   const [showDebug, setShowDebug] = useState(true);
 
-  // Hero에서 로딩 완료 시 호출됨
+  // Hero에서 이미지 생성 완료 시 호출됨
   const handleHeroComplete = (imageUrl: string) => {
     setUploadedImage(imageUrl);
-
-    // 부드럽게 아래 Workshop 섹션으로 스크롤 이동
-    setTimeout(() => {
-      const workshopSection = document.getElementById("customizer-workshop");
-      workshopSection?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    // 기존 스크롤 로직 대신 모달을 엽니다.
+    setIsModalOpen(true);
   };
 
   return (
     <main className="relative min-h-screen bg-black text-white selection:bg-blue-500 selection:text-white">
       {/* ============================================================
-          🛠️ DEBUG ROUTER PANEL (우측 하단 고정)
-          개발 중에만 사용하고 배포 시에는 이 부분을 주석 처리하거나 제거하세요.
+          🛠️ DEBUG ROUTER PANEL (기존 유지)
       ============================================================= */}
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
-        {/* 패널 본체 */}
         {showDebug && (
           <div className="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-900/90 p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-2">
             <div className="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -91,7 +87,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* 토글 버튼 (아이콘) */}
         <button
           onClick={() => setShowDebug(!showDebug)}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 border border-gray-700 text-white shadow-lg hover:bg-gray-700 transition-colors"
@@ -112,17 +107,22 @@ export default function Home() {
         <WalkthroughScreen onStart={() => setScreen("home")} />
       )}
 
-      {/* 3. Main Home (Hero + Workshop + Features) */}
+      {/* 3. Main Home (Hero -> Modal Popup) */}
       {screen === "home" && (
         <div className="animate-in fade-in duration-1000">
-          {/* Hero: 이미지 업로드 및 시뮬레이션 */}
-          <CustomizerHero onVisualizationComplete={handleHeroComplete} />
+          {/* Hero: 이미지 업로드 및 디버그 버튼 */}
+          <CustomizerHero
+            onDebugClick={() => setIsModalOpen(true)}
+            onVisualizationComplete={handleHeroComplete}
+          />
 
-          {/* Workshop: 결과 확인 및 3D 생성 (Hero에서 받은 이미지 주입) */}
-          <CustomizerWorkshop initialImage={uploadedImage} />
-
-          {/* Features: 기타 정보
-          <CustomizerFeatures /> */}
+          {/* Workshop Modal: 팝업 형태로 뜨는 워크샵 */}
+          {isModalOpen && (
+            <WorkshopModal
+              initialImage={uploadedImage}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
         </div>
       )}
     </main>
