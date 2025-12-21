@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react"
-import { Palette, Grid3x3, Box, Eye, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { showBoundingBox } from "./modular-system"
-import { Mouse } from "./mouse"
+import { useRef, useEffect, useState } from "react";
+import { Palette, Grid3x3, Box, Eye, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { showBoundingBox } from "./modular-system";
+import { Mouse } from "./mouse";
 
 export interface ModelOption {
   id: string;
@@ -35,13 +35,17 @@ interface LightingSettings {
   directionalZ: number;
 }
 
-type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
-type EditMode = 'View' | 'Move';
+type ViewMode = "normal" | "wireframe" | "grayscale" | "wireframe-grayscale";
+type EditMode = "View" | "Move";
 
 const createGrayscaleShader = async () => {
   return {
-    vertexShader: await fetch('/shaders/vertex_gray_scale.glsl').then(r => r.text()),
-    fragmentShader: await fetch('/shaders/fragment_gray_scale.glsl').then(r => r.text()),
+    vertexShader: await fetch("/shaders/vertex_gray_scale.glsl").then((r) =>
+      r.text()
+    ),
+    fragmentShader: await fetch("/shaders/fragment_gray_scale.glsl").then((r) =>
+      r.text()
+    ),
   };
 };
 
@@ -86,15 +90,14 @@ export function Model3DViewer({
   className = "",
   autoRotate = false,
 }: Model3DViewerProps) {
-  
   //const garageRef = useRef<THREE.Group | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // three really basic components
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  
+
   /* 
     raycaster and mouse vector 
     drag state management
@@ -104,7 +107,9 @@ export function Model3DViewer({
 
   let selectedObjectRef = useRef<THREE.Object3D | null>(null);
   let isDraggingRef = useRef<boolean>(false);
-  const planeRef = useRef<THREE.Plane | null>(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
+  const planeRef = useRef<THREE.Plane | null>(
+    new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
+  );
   const intersectionRef = useRef<THREE.Vector3 | null>(new THREE.Vector3());
 
   const controlsRef = useRef<OrbitControls | null>(null);
@@ -167,13 +172,13 @@ export function Model3DViewer({
       Renderer and mouse event listeners for drag-drop
       Pile of bomb here...
     */
-    renderer.domElement.addEventListener('mousedown', (e) => {
+    renderer.domElement.addEventListener("mousedown", (e) => {
       mouseRef.current?.updatePosition(e);
       raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
 
       const intersect = raycasterRef.current?.intersectObjects(scene.children);
 
-      if(intersect && intersect.length > 0) {
+      if (intersect && intersect.length > 0) {
         selectedObjectRef.current = intersect[0].object;
         isDraggingRef.current = true;
 
@@ -184,17 +189,22 @@ export function Model3DViewer({
       }
     });
 
-    renderer.domElement.addEventListener('mousemove', (e) => {
-      if(!isDraggingRef.current || !selectedObjectRef.current) return;
+    renderer.domElement.addEventListener("mousemove", (e) => {
+      if (!isDraggingRef.current || !selectedObjectRef.current) return;
 
       mouseRef.current?.updatePosition(e);
       raycasterRef.current?.setFromCamera(mouseRef.current!.position, camera);
-      if(raycasterRef.current?.ray.intersectPlane(planeRef.current!, intersectionRef.current!)) {
+      if (
+        raycasterRef.current?.ray.intersectPlane(
+          planeRef.current!,
+          intersectionRef.current!
+        )
+      ) {
         selectedObjectRef.current.position.copy(intersectionRef.current!);
       }
     });
 
-    renderer.domElement.addEventListener('mouseup', () => {
+    renderer.domElement.addEventListener("mouseup", () => {
       isDraggingRef.current = false;
       selectedObjectRef.current = null;
     });
@@ -313,7 +323,7 @@ export function Model3DViewer({
         model.position.z = -center.z * scale;
 
         showBoundingBox(model, scene);
-        
+
         scene.add(model);
         modelRef.current = model;
         setIsLoading(false);
@@ -326,7 +336,6 @@ export function Model3DViewer({
       }
     );
   }, [currentModelUrl]);
-  
 
   // 뷰 모드 변경시 적용
   useEffect(() => {

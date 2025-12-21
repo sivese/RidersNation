@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -42,38 +46,54 @@
 }
 
 .dark {
-  --background: oklch(0.12 0.01 240);
-  --foreground: oklch(0.95 0.01 60);
-  --card: oklch(0.16 0.01 240);
-  --card-foreground: oklch(0.95 0.01 60);
-  --popover: oklch(0.14 0.01 240);
-  --popover-foreground: oklch(0.95 0.01 60);
-  --primary: oklch(0.65 0.22 45);
-  --primary-foreground: oklch(0.12 0.01 240);
-  --secondary: oklch(0.22 0.02 240);
-  --secondary-foreground: oklch(0.95 0.01 60);
-  --muted: oklch(0.2 0.01 240);
-  --muted-foreground: oklch(0.6 0.01 240);
-  --accent: oklch(0.65 0.22 45);
-  --accent-foreground: oklch(0.12 0.01 240);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.25 0.01 240);
-  --input: oklch(0.22 0.01 240);
-  --ring: oklch(0.65 0.22 45);
-  --chart-1: oklch(0.65 0.22 45);
-  --chart-2: oklch(0.6 0.15 180);
-  --chart-3: oklch(0.7 0.18 120);
-  --chart-4: oklch(0.55 0.2 300);
-  --chart-5: oklch(0.75 0.16 80);
-  --sidebar: oklch(0.14 0.01 240);
-  --sidebar-foreground: oklch(0.95 0.01 60);
-  --sidebar-primary: oklch(0.65 0.22 45);
-  --sidebar-primary-foreground: oklch(0.12 0.01 240);
-  --sidebar-accent: oklch(0.22 0.02 240);
-  --sidebar-accent-foreground: oklch(0.95 0.01 60);
-  --sidebar-border: oklch(0.25 0.01 240);
-  --sidebar-ring: oklch(0.65 0.22 45);
+  /* Pure black background for modern, clean look */
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+
+  /* Dark gray cards for content sections */
+  --card: oklch(0.18 0.005 240);
+  --card-foreground: oklch(0.98 0 0);
+
+  --popover: oklch(0.1 0.005 240);
+  --popover-foreground: oklch(0.98 0 0);
+
+  /* Bright vibrant blue for accents - matching Figma */
+  --primary: oklch(0.6 0.24 250);
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.2 0.01 240);
+  --secondary-foreground: oklch(0.98 0 0);
+
+  --muted: oklch(0.22 0.005 240);
+  --muted-foreground: oklch(0.65 0.005 240);
+
+  --accent: oklch(0.6 0.24 250);
+  --accent-foreground: oklch(1 0 0);
+
+  --destructive: oklch(0.5 0.2 25);
+  --destructive-foreground: oklch(1 0 0);
+
+  /* Subtle borders */
+  --border: oklch(0.25 0.005 240);
+  --input: oklch(0.2 0.005 240);
+  --ring: oklch(0.6 0.24 250);
+
+  /* Chart colors with blue theme */
+  --chart-1: oklch(0.6 0.24 250);
+  --chart-2: oklch(0.65 0.18 200);
+  --chart-3: oklch(0.7 0.18 280);
+  --chart-4: oklch(0.6 0.2 300);
+  --chart-5: oklch(0.65 0.16 180);
+
+  /* Sidebar colors */
+  --sidebar: oklch(0.08 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.6 0.24 250);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.2 0.01 240);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.25 0.005 240);
+  --sidebar-ring: oklch(0.6 0.24 250);
 }
 
 @theme inline {
@@ -124,4 +144,58 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* 🌊 물이 차오르는 애니메이션 */
+@keyframes waterFill {
+  0% {
+    opacity: 1;
+    background-position: 50% 0%; /* 시작: 투명한 위쪽 */
+  }
+  100% {
+    opacity: 1;
+    background-position: 50% 100%; /* 끝: 색상이 있는 아래쪽 */
+  }
+}
+
+.animate-water-fill {
+  /* 배경을 길게 늘림 */
+  background-size: 100% 250%; /* 경계가 넓어져서 배경도 좀 더 길게 잡았습니다 */
+
+  background-image: linear-gradient(
+    to bottom,
+    transparent 35%,
+    rgba(0, 255, 255, 0.2) 50%,
+    /* 🌫️ 블러/안개 효과 구간 */ #00ffff 65%,
+    #2052f1 100%
+  );
+
+  /* 글자 모양대로 자르기 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* 속도감: 조금 더 천천히 올라오게 2.5초로 늘려 블러를 강조 */
+  animation: waterFill 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 나머지 유지 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+.text-vision-gradient {
+  background: linear-gradient(180deg, #00ffff, #2052f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
