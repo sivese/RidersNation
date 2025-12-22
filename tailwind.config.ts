@@ -9,6 +9,23 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          "Pretendard",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "Roboto",
+          "Helvetica Neue",
+          "Segoe UI",
+          "Apple SD Gothic Neo",
+          "Malgun Gothic",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+          "sans-serif",
+        ],
+      },
       keyframes: {
         // ✨ [New] 투명했다가 아래서부터 색이 차오르는 애니메이션
         waterFill: {

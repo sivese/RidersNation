@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,64 +6,33 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark Mode Variant 제거 
+  기본적으로 Dark Theme ("Vision") 상태로 고정됩니다.
+*/
 
 :root {
-  /* Clean white and light grays for bright aesthetic */
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.15 0.01 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 240);
-  /* Vibrant blue accent - energetic and modern */
-  --primary: oklch(0.55 0.22 250);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.95 0.01 240);
-  --secondary-foreground: oklch(0.15 0.01 240);
-  --muted: oklch(0.93 0.01 240);
-  --muted-foreground: oklch(0.45 0.01 240);
-  --accent: oklch(0.55 0.22 250);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.88 0.01 240);
-  --input: oklch(0.95 0.01 240);
-  --ring: oklch(0.55 0.22 250);
-  --chart-1: oklch(0.55 0.22 250);
-  --chart-2: oklch(0.6 0.15 180);
-  --chart-3: oklch(0.7 0.18 120);
-  --chart-4: oklch(0.55 0.2 300);
-  --chart-5: oklch(0.75 0.16 80);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.98 0 0);
-  --sidebar-foreground: oklch(0.15 0.01 240);
-  --sidebar-primary: oklch(0.55 0.22 250);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.95 0.01 240);
-  --sidebar-accent-foreground: oklch(0.15 0.01 240);
-  --sidebar-border: oklch(0.88 0.01 240);
-  --sidebar-ring: oklch(0.55 0.22 250);
-}
+  /* --- Color Palette (Vision Theme - Always Dark) --- */
 
-.dark {
-  /* Pure black background for modern, clean look */
+  /* Background: Pure Black for modern, clean look */
   --background: oklch(0 0 0);
-  --foreground: oklch(1 0 0);
+
+  /* Foreground: Requested #F5F5F7 (Converted to approx OKLCH for consistency or use HEX) */
+  /* #F5F5F7 is extremely light gray/white */
+  --foreground: oklch(0.97 0.01 256);
 
   /* Dark gray cards for content sections */
   --card: oklch(0.18 0.005 240);
-  --card-foreground: oklch(0.98 0 0);
+  --card-foreground: oklch(0.97 0.01 256);
 
   --popover: oklch(0.1 0.005 240);
-  --popover-foreground: oklch(0.98 0 0);
+  --popover-foreground: oklch(0.97 0.01 256);
 
   /* Bright vibrant blue for accents - matching Figma */
   --primary: oklch(0.6 0.24 250);
   --primary-foreground: oklch(1 0 0);
 
   --secondary: oklch(0.2 0.01 240);
-  --secondary-foreground: oklch(0.98 0 0);
+  --secondary-foreground: oklch(0.97 0.01 256);
 
   --muted: oklch(0.22 0.005 240);
   --muted-foreground: oklch(0.65 0.005 240);
@@ -87,18 +57,23 @@
 
   /* Sidebar colors */
   --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.97 0.01 256);
   --sidebar-primary: oklch(0.6 0.24 250);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.2 0.01 240);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-accent-foreground: oklch(0.97 0.01 256);
   --sidebar-border: oklch(0.25 0.005 240);
   --sidebar-ring: oklch(0.6 0.24 250);
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  /* 폰트 변수 매핑 */
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  /* 색상 변수 매핑 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -141,12 +116,30 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+      sans-serif !important;
+    /* Redesign Spec: Body text medium weight */
+    font-weight: 500;
+    /* Redesign Spec: Color #F5F5F7 */
+    color: #f5f5f7;
+  }
+
+  /* Redesign Spec: Headers Semi-bold */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
   }
 }
 
-/* 🌊 물이 차오르는 애니메이션 */
+/* --- Animations (Water Fill & Fade In) --- */
+
 @keyframes waterFill {
   0% {
     opacity: 1;
@@ -159,27 +152,20 @@
 }
 
 .animate-water-fill {
-  /* 배경을 길게 늘림 */
-  background-size: 100% 250%; /* 경계가 넓어져서 배경도 좀 더 길게 잡았습니다 */
-
+  background-size: 100% 250%;
   background-image: linear-gradient(
     to bottom,
     transparent 35%,
     rgba(0, 255, 255, 0.2) 50%,
-    /* 🌫️ 블러/안개 효과 구간 */ #00ffff 65%,
+    #00ffff 65%,
     #2052f1 100%
   );
-
-  /* 글자 모양대로 자르기 */
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-
-  /* 속도감: 조금 더 천천히 올라오게 2.5초로 늘려 블러를 강조 */
   animation: waterFill 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* 나머지 유지 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -190,9 +176,11 @@
     transform: translateY(0);
   }
 }
+
 .animate-fade-in {
   animation: fadeIn 1s ease-out forwards;
 }
+
 .text-vision-gradient {
   background: linear-gradient(180deg, #00ffff, #2052f1);
   -webkit-background-clip: text;

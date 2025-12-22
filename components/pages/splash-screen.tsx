@@ -32,15 +32,15 @@ export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white flex items-center gap-1">
+      <h1 className="text-5xl md:text-7xl font-bold tracking-tight flex items-center gap-1">
         <span
-          className="animate-fade-in opacity-0"
+          className="text-foreground font-semibold animate-fade-in opacity-0"
           style={{ animationDelay: "0.2s" }}
         >
           Re:
         </span>
         <span
-          className="animate-water-fill opacity-0"
+          className="font-bold animate-water-fill opacity-0"
           style={{ animationDelay: "1.2s" }}
         >
           VISION

@@ -161,8 +161,8 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[#111] text-white overflow-hidden select-none">
       {/* Header */}
-      <div className="pt-12 pb-4 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+      <div className="pt-12 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
+        <h1 className="text-foreground text-4xl md:text-5xl font-bold tracking-tight">
           The Workflow.
         </h1>
       </div>
@@ -192,7 +192,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
           return (
             <div
               key={slide.id}
-              className="w-[85vw] md:w-[60vw] flex-shrink-0 snap-center px-3 transition-all duration-500"
+              className="text-foreground w-[85vw] md:w-[60vw] flex-shrink-0 snap-center px-3 transition-all duration-500"
               // 클릭 시 스크롤 이동은 유지 (드래그가 아닐 때만 작동하게 하려면 로직 추가 필요하지만 보통 둬도 무방)
               onClick={() => {
                 if (!isDragging.current) scrollToSlide(index);
@@ -247,7 +247,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                   className="z-10 mt-auto transition-opacity duration-500"
                   style={{ opacity: isActive ? 1 : 0 }}
                 >
-                  <p className="text-gray-300 font-medium text-lg md:text-xl leading-snug max-w-lg pointer-events-none">
+                  <p className=" text-gray-300 font-medium text-lg md:text-xl leading-snug max-w-lg pointer-events-none">
                     {slide.description}
                   </p>
                 </div>
