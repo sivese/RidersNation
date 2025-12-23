@@ -50,7 +50,7 @@ export function WorkshopModal({ onClose, initialImage }: WorkshopModalProps) {
           </div>
 
           {/* 실제 워크샵 */}
-          <div className="flex-1 overflow-hidden bg-black/40">
+          <div className="flex-1 overflow-y-auto bg-black/40 scrollbar-custom">
             <CustomizerWorkshop initialImage={initialImage} />
           </div>
         </div>
