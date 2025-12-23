@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -8,20 +8,21 @@ interface UseThreeSceneParams {
 }
 
 interface UseThreeSceneReturn {
-  scene: RefObject<THREE.Scene | null>;
-  camera: RefObject<THREE.PerspectiveCamera | null>;
-  renderer: RefObject<THREE.WebGLRenderer | null>;
-  controls: RefObject<OrbitControls | null>;
+  scene: THREE.Scene | null;
+  camera: THREE.PerspectiveCamera | null;
+  renderer: THREE.WebGLRenderer | null;
+  controls: OrbitControls | null;
 }
 
 export function useThreeScene({
   containerRef,
   autoRotate = false,
 }: UseThreeSceneParams): UseThreeSceneReturn {
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
+  const [scene, setScene] = useState<THREE.Scene | null>(null);
+  const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
+  const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
+  const [controls, setControls] = useState<OrbitControls | null>(null);
+
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -36,49 +37,54 @@ export function useThreeScene({
     }
 
     // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf5f5f5);
-    sceneRef.current = scene;
+    const newScene = new THREE.Scene();
+    newScene.background = new THREE.Color(0xf5f5f5);
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(
+    const newCamera = new THREE.PerspectiveCamera(
       75,
       container.clientWidth / container.clientHeight,
       0.1,
       1000
     );
-    camera.position.set(0, 5, 8);
-    camera.lookAt(0, 0, 0);
-    cameraRef.current = camera;
+
+    newCamera.position.set(0, 5, 8);
+    newCamera.lookAt(0, 0, 0);
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.shadowMap.enabled = true;
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+    const newRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    newRenderer.setSize(container.clientWidth, container.clientHeight);
+    newRenderer.shadowMap.enabled = true;
+    container.appendChild(newRenderer.domElement);
 
     // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.autoRotate = autoRotate;
-    controls.autoRotateSpeed = 4;
-    controlsRef.current = controls;
+    const newControls = new OrbitControls(newCamera, newRenderer.domElement);
+    newControls.enableDamping = true;
+    newControls.dampingFactor = 0.05;
+    newControls.autoRotate = autoRotate;
+    newControls.autoRotateSpeed = 4;
 
     // Lights
-    setupLights(scene);
+    setupLights(newScene);
 
     // Grid
     const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
-    scene.add(gridHelper);
+    newScene.add(gridHelper);
+
+    setScene(newScene);
+    setCamera(newCamera);
+    setRenderer(newRenderer);
+    setControls(newControls);
 
     // Animation loop
+    let animationFrameId : number;
+    
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
+      newControls.update();
+      newRenderer.render(newScene, newCamera);
     };
+
     animate();
 
     // Resize handler
@@ -86,10 +92,11 @@ export function useThreeScene({
       if (!container) return;
       const width = container.clientWidth;
       const height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      newCamera.aspect = width / height;
+      newCamera.updateProjectionMatrix();
+      newRenderer.setSize(width, height);
     };
+
     window.addEventListener('resize', handleResize);
 
     // Cleanup
@@ -98,20 +105,22 @@ export function useThreeScene({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      renderer.dispose();
-      controls.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      
+      newRenderer.dispose();
+      newControls.dispose();
+
+      if (container.contains(newRenderer.domElement)) {
+        container.removeChild(newRenderer.domElement);
       }
+
+      setScene(null);
+      setCamera(null);
+      setRenderer(null);
+      setControls(null);
     };
   }, [containerRef, autoRotate]);
 
-  return {
-    scene: sceneRef,
-    camera: cameraRef,
-    renderer: rendererRef,
-    controls: controlsRef,
-  };
+  return { scene, camera, renderer, controls };
 }
 
 // 조명 설정 헬퍼

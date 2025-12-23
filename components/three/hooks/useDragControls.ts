@@ -37,28 +37,22 @@ export function useDragControls({
             raycaster.current.setFromCamera(mouse.current.position, camera);
 
             const intersects = raycaster.current.intersectObjects(scene.children, true);
+            const hit = intersects.find((i) => !(i.object instanceof THREE.GridHelper));
+            
+            if (hit) {
+                selectedObject.current = hit.object;
+                isDragging.current = true;
 
-            if (intersects.length > 0) {
-                // GridHelper 등 제외
-                const hit = intersects.find(
-                    (i) => !(i.object instanceof THREE.GridHelper)
-                );
-                
-                if (hit) {
-                    selectedObject.current = hit.object;
-                    isDragging.current = true;
-
-                    // OrbitControls 비활성화
-                    if (orbitControls) {
-                        orbitControls.enabled = false;
-                    }
-
-                    // 드래그 평면 설정
-                    plane.current.setFromNormalAndCoplanarPoint(
-                        camera.getWorldDirection(new THREE.Vector3()).negate(),
-                        hit.point
-                    );
+                // OrbitControls 비활성화
+                if (orbitControls) {
+                    orbitControls.enabled = false;
                 }
+
+                // 드래그 평면 설정
+                plane.current.setFromNormalAndCoplanarPoint(
+                    camera.getWorldDirection(new THREE.Vector3()).negate(),
+                    hit.point
+                );
             }
         };
 
@@ -95,8 +89,8 @@ export function useDragControls({
     }, [scene, camera, renderer, orbitControls, enabled]);
 
     return {
-        selectedObject: selectedObject.current,
-        isDragging: isDragging.current,
+        selectedObject,
+        isDragging,
         mouse,
     };
 }
