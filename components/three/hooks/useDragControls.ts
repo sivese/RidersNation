@@ -33,6 +33,8 @@ export function useDragControls({
         const onMouseDown = (e: MouseEvent) => {
             if (!enabled) return;
 
+            console.log('Mouse Down - Drag Start');
+
             mouse.current.updatePosition(e, domElement);
             raycaster.current.setFromCamera(mouse.current.position, camera);
 
@@ -40,6 +42,8 @@ export function useDragControls({
             const hit = intersects.find((i) => !(i.object instanceof THREE.GridHelper));
             
             if (hit) {
+                console.log('Object Selected for Dragging:', hit.object);
+                
                 selectedObject.current = hit.object;
                 isDragging.current = true;
 
