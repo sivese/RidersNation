@@ -36,7 +36,7 @@ export function Model3DViewer({
     : modelOptions[0]?.url || null;
 
   const { model, originalMaterials, isLoading } = useModelLoader({
-    scene: scene.current,
+    scene: scene,
     modelUrl: currentModelUrl,
   });
 
@@ -48,16 +48,16 @@ export function Model3DViewer({
 
   // 드래그 컨트롤
   useEffect(() => {
-    if (controls.current) {
-      controls.current.enabled = editMode === 'camera';
+    if (controls) {
+      controls.enabled = editMode === 'camera';
     }
   }, [editMode, controls]);
 
   useDragControls({
-    scene: scene.current,
-    camera: camera.current,
-    renderer: renderer.current,
-    orbitControls: controls.current,
+    scene: scene,
+    camera: camera,
+    renderer: renderer,
+    orbitControls: controls,
     enabled: editMode === 'object',
   });
 
