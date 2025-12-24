@@ -2,13 +2,9 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Upload, RotateCcw, Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Model3DViewer } from "@/components/three"
 import { ModelOption } from "@/components/three/types"
 import { fileToBase64 } from "@/lib/base64"
-import { set } from "date-fns"
-import { Input } from "./ui/input"
 
 // 기존 인터페이스 유지
 interface PartGenerationStatus {
@@ -47,57 +43,9 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   const [generatedModels, setGeneratedModels] = useState<ModelOption[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
 
-  // debugging states
-  const [debugMode, setDebugMode] = useState(true);
-  const [debugModelUrl, setDebugModelUrl] = useState("");
-
   // ---------------------------------------------------------
   // 👇 기존 로직들 (백엔드 연동) - 그대로 유지됨
   // ---------------------------------------------------------
-
-  const addDebugModel = () => {
-    if (!debugModelUrl.trim()) return;
-    const newModel: ModelOption = {
-      id: `debug-${Date.now()}`,
-      name: `🔧 Debug Model`,
-      url: debugModelUrl,
-      partType: "debug",
-    };
-    setGeneratedModels((prev) => [...prev, newModel]);
-    setSelectedModelId(newModel.id);
-    setDebugModelUrl("");
-  };
-
-  const loadSampleModel = () => {
-    const sampleModels = [
-      { name: "Duck", url: "/models/1.glb" }, // public 폴더에 파일이 있어야 함
-    ];
-    const sample =
-      sampleModels[Math.floor(Math.random() * sampleModels.length)];
-    const newModel: ModelOption = {
-      id: `sample-${Date.now()}`,
-      name: `🎯 ${sample.name} (Sample)`,
-      url: sample.url,
-      partType: "sample",
-    };
-    setGeneratedModels((prev) => [...prev, newModel]);
-    setSelectedModelId(newModel.id);
-  };
-
-  const loadLocalModel = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const localUrl = URL.createObjectURL(file);
-    const newModel: ModelOption = {
-      id: `local-${Date.now()}`,
-      name: `📁 ${file.name}`,
-      url: localUrl,
-      partType: "local",
-    };
-    setGeneratedModels((prev) => [...prev, newModel]);
-    setSelectedModelId(newModel.id);
-  };
-
   const wsRefs = useRef<Map<string, WebSocket>>(new Map());
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -340,169 +288,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
           </div>
 
           <div className="space-y-8">
-            {/* Debug Panel */}
-            {debugMode && (
-              <Card className="p-6 border-yellow-500 bg-yellow-500/10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-yellow-500">
-                    🛠️ Debug Mode
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDebugMode(false)}
-                  >
-                    Hide
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {/* URL 입력 */}
-                  <div className="flex gap-2">
-                    <label
-                      style={{
-                        padding: "8px 16px",
-                        backgroundColor: "#4a90d9",
-                        color: "white",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      📁 Load Model File
-                      <Input
-                        onChange={loadLocalModel}
-                        type="file"
-                        accept=".glb"
-                        className="hidden"
-                        id="local-model-input"
-                      />
-                    </label>
-                  </div>
-
-                  {/* ✨ [추가됨] 샘플 이미지 로드 버튼 */}
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setMotorcycleImage(
-                          "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=600&auto=format&fit=crop"
-                        )
-                      }
-                    >
-                      🖼️ Load Sample Image
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={loadSampleModel}
-                    >
-                      🦆 Load Sample Model
-                    </Button>
-                    {/* ... 기존 버튼들 유지 ... */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const taskId = prompt("Enter task ID:");
-                        if (taskId) {
-                          const newModel: ModelOption = {
-                            id: taskId,
-                            name: `📦 Task: ${taskId.slice(0, 8)}...`,
-                            url: `http://127.0.0.1:8080/api/3d/model/${taskId}`,
-                            partType: "debug",
-                          };
-                          setGeneratedModels((prev) => [...prev, newModel]);
-                          setSelectedModelId(newModel.id);
-                        }
-                      }}
-                    >
-                      🔗 Load by Task ID
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        setGeneratedModels([]);
-                        setSelectedModelId(null);
-                        setMotorcycleImage(null); // 이미지도 같이 초기화
-                      }}
-                    >
-                      🗑️ Clear All
-                    </Button>
-                  </div>
-
-                  {generatedModels.length > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                      <p className="font-semibold mb-1">Loaded Models:</p>
-                      <ul className="space-y-1">
-                        {generatedModels.map((m) => (
-                          <li key={m.id} className="truncate">
-                            • {m.name}: {m.url.slice(0, 50)}...
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            )}
-
-            {/* 3D Viewer - 디버그 모드면 항상 표시 */}
-            {(debugMode || generatedModels.length > 0) && (
-              <Card className="p-6 bg-[#111] border-gray-800">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">
-                    🎨 3D Model Viewer
-                    {generatedModels.length > 0 && (
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
-                        ({generatedModels.length} models)
-                      </span>
-                    )}
-                  </h3>
-                  <div className="flex gap-2">
-                    {!debugMode && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDebugMode(true)}
-                      >
-                        🛠️ Debug
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" onClick={handleReset}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Reset
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownload}
-                      disabled={!selectedModelId}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-
-                {generatedModels.length > 0 ? (
-                  <Model3DViewer
-                    modelOptions={generatedModels}
-                    selectedModelId={selectedModelId}
-                    onModelSelect={setSelectedModelId}
-                    showControls={true}
-                    autoRotate={false}
-                    className="h-[600px] border border-gray-700 rounded-lg"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-[600px] border-2 border-dashed border-gray-700 rounded-lg text-gray-500">
-                    <p>Load a model using the debug panel above ☝️</p>
-                  </div>
-                )}
-              </Card>
-            )}
-
             {/* Upload Section */}
             <Card className="p-10 bg-[#111] border-gray-800">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
