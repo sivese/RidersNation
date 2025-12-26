@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Upload, RotateCcw, Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Model3DViewer } from "@/components/three"
-import { ModelOption } from "@/components/three/types"
-import { fileToBase64 } from "@/lib/base64"
-import { set } from "date-fns"
-import { Input } from "./ui/input"
+import { useState, useRef, useEffect } from "react";
+import { Upload, RotateCcw, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Model3DViewer } from "@/components/three";
+import { ModelOption } from "@/components/three/types";
+import { fileToBase64 } from "@/lib/base64";
+import { set } from "date-fns";
+import { Input } from "./ui/input";
 
 // 기존 인터페이스 유지
 interface PartGenerationStatus {
@@ -30,7 +30,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     initialImage || null
   );
 
-  // ✨ [추가됨] Hero 섹션에서 이미지가 넘어오면 자동으로 상태 업데이트
+  // [추가됨] Hero 섹션에서 이미지가 넘어오면 자동으로 상태 업데이트
   useEffect(() => {
     if (initialImage) {
       setMotorcycleImage(initialImage);
@@ -59,7 +59,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     if (!debugModelUrl.trim()) return;
     const newModel: ModelOption = {
       id: `debug-${Date.now()}`,
-      name: `🔧 Debug Model`,
+      name: `Debug Model`,
       url: debugModelUrl,
       partType: "debug",
     };
@@ -76,7 +76,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
       sampleModels[Math.floor(Math.random() * sampleModels.length)];
     const newModel: ModelOption = {
       id: `sample-${Date.now()}`,
-      name: `🎯 ${sample.name} (Sample)`,
+      name: `${sample.name} (Sample)`,
       url: sample.url,
       partType: "sample",
     };
@@ -90,7 +90,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     const localUrl = URL.createObjectURL(file);
     const newModel: ModelOption = {
       id: `local-${Date.now()}`,
-      name: `📁 ${file.name}`,
+      name: `${file.name}`,
       url: localUrl,
       partType: "local",
     };
@@ -297,10 +297,10 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
 
   const getPartDisplayName = (partType: string): string => {
     const names: Record<string, string> = {
-      exhaust: "🔧 Exhaust / Muffler",
-      seat: "🪑 Seat",
-      frame: "🏗️ Frame",
-      "full-bike": "🏍️ Full Motorcycle",
+      exhaust: "Exhaust / Muffler",
+      seat: "Seat",
+      frame: "Frame",
+      "full-bike": "Full Motorcycle",
     };
     return names[partType] || partType;
   };
@@ -345,7 +345,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
               <Card className="p-6 border-yellow-500 bg-yellow-500/10">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-yellow-500">
-                    🛠️ Debug Mode
+                    Debug Mode
                   </h3>
                   <Button
                     variant="ghost"
@@ -368,7 +368,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         cursor: "pointer",
                       }}
                     >
-                      📁 Load Model File
+                      Load Model File
                       <Input
                         onChange={loadLocalModel}
                         type="file"
@@ -379,7 +379,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     </label>
                   </div>
 
-                  {/* ✨ [추가됨] 샘플 이미지 로드 버튼 */}
+                  {/* [추가됨] 샘플 이미지 로드 버튼 */}
                   <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="outline"
@@ -390,14 +390,14 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         )
                       }
                     >
-                      🖼️ Load Sample Image
+                      Load Sample Image
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={loadSampleModel}
                     >
-                      🦆 Load Sample Model
+                      Load Sample Model
                     </Button>
                     {/* ... 기존 버튼들 유지 ... */}
                     <Button
@@ -408,7 +408,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         if (taskId) {
                           const newModel: ModelOption = {
                             id: taskId,
-                            name: `📦 Task: ${taskId.slice(0, 8)}...`,
+                            name: `Task: ${taskId.slice(0, 8)}...`,
                             url: `http://127.0.0.1:8080/api/3d/model/${taskId}`,
                             partType: "debug",
                           };
@@ -417,7 +417,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         }
                       }}
                     >
-                      🔗 Load by Task ID
+                      Load by Task ID
                     </Button>
                     <Button
                       variant="destructive"
@@ -428,7 +428,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         setMotorcycleImage(null); // 이미지도 같이 초기화
                       }}
                     >
-                      🗑️ Clear All
+                      Clear All
                     </Button>
                   </div>
 
@@ -453,7 +453,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
               <Card className="p-6 bg-[#111] border-gray-800">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">
-                    🎨 3D Model Viewer
+                    3D Model Viewer
                     {generatedModels.length > 0 && (
                       <span className="ml-2 text-sm font-normal text-muted-foreground">
                         ({generatedModels.length} models)
@@ -467,7 +467,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         size="sm"
                         onClick={() => setDebugMode(true)}
                       >
-                        🛠️ Debug
+                        Debug
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={handleReset}>
@@ -543,8 +543,8 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                   className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg transition-all"
                 >
                   {isGenerating
-                    ? `🔄 Generating... (${completedCount}/4 complete)`
-                    : "🚀 Generate All 3D Models"}
+                    ? `Generating... (${completedCount}/4 complete)`
+                    : "Generate All 3D Models"}
                 </button>
               </div>
             </Card>
@@ -553,7 +553,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
             {isGenerating || completedCount > 0 ? (
               <Card className="p-6 bg-[#111] border-gray-800">
                 <h3 className="mb-4 text-lg font-semibold text-white">
-                  🚀 Generation Progress
+                  Generation Progress
                 </h3>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -615,13 +615,11 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         )}
                         {part.status === "completed" && (
                           <span className="text-green-400 text-xs">
-                            ✅ Complete
+                            Complete
                           </span>
                         )}
                         {part.status === "failed" && (
-                          <span className="text-red-400 text-xs">
-                            ❌ Failed
-                          </span>
+                          <span className="text-red-400 text-xs">Failed</span>
                         )}
                       </div>
                     </div>
