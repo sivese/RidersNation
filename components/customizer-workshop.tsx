@@ -26,7 +26,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     initialImage || null
   );
 
-  // ✨ [추가됨] Hero 섹션에서 이미지가 넘어오면 자동으로 상태 업데이트
+  // [추가됨] Hero 섹션에서 이미지가 넘어오면 자동으로 상태 업데이트
   useEffect(() => {
     if (initialImage) {
       setMotorcycleImage(initialImage);
@@ -245,10 +245,10 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
 
   const getPartDisplayName = (partType: string): string => {
     const names: Record<string, string> = {
-      exhaust: "🔧 Exhaust / Muffler",
-      seat: "🪑 Seat",
-      frame: "🏗️ Frame",
-      "full-bike": "🏍️ Full Motorcycle",
+      exhaust: "Exhaust / Muffler",
+      seat: "Seat",
+      frame: "Frame",
+      "full-bike": "Full Motorcycle",
     };
     return names[partType] || partType;
   };
@@ -328,8 +328,8 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                   className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg transition-all"
                 >
                   {isGenerating
-                    ? `🔄 Generating... (${completedCount}/4 complete)`
-                    : "🚀 Generate All 3D Models"}
+                    ? `Generating... (${completedCount}/4 complete)`
+                    : "Generate All 3D Models"}
                 </button>
               </div>
             </Card>
@@ -338,7 +338,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
             {isGenerating || completedCount > 0 ? (
               <Card className="p-6 bg-[#111] border-gray-800">
                 <h3 className="mb-4 text-lg font-semibold text-white">
-                  🚀 Generation Progress
+                  Generation Progress
                 </h3>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -400,13 +400,11 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         )}
                         {part.status === "completed" && (
                           <span className="text-green-400 text-xs">
-                            ✅ Complete
+                            Complete
                           </span>
                         )}
                         {part.status === "failed" && (
-                          <span className="text-red-400 text-xs">
-                            ❌ Failed
-                          </span>
+                          <span className="text-red-400 text-xs">Failed</span>
                         )}
                       </div>
                     </div>
