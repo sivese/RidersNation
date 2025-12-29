@@ -26,7 +26,7 @@ export function WorkshopModal({ onClose, initialImage }: WorkshopModalProps) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
               </span>
-              <h2 className="text-sm font-bold text-white tracking-widest uppercase text-blue-100/80">
+              <h2 className="text-sm font-bold text-foreground tracking-widest uppercase text-blue-100/80">
                 Re:Vision Workshop{" "}
                 <span className="text-xs text-blue-500 ml-1">[BETA]</span>
               </h2>
@@ -35,7 +35,7 @@ export function WorkshopModal({ onClose, initialImage }: WorkshopModalProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={onClose}
-                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:bg-white/10 hover:text-foreground transition-colors"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Close Project

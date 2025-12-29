@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Model3DViewer } from "@/components/three";
 import { ModelOption } from "@/components/three/types";
 import { fileToBase64 } from "@/lib/base64";
-import { set } from "date-fns";
 import { Input } from "./ui/input";
 
 // 기존 인터페이스 유지
@@ -18,24 +17,15 @@ interface PartGenerationStatus {
   progress: number;
 }
 
-// ✨ [추가됨] 외부(Hero 섹션)에서 이미지를 받기 위한 Props 정의
+// Props 정의
 interface CustomizerWorkshopProps {
   initialImage?: string | null;
 }
 
-// 함수 파라미터에 props 추가
 export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
-  // 초기값을 props로 설정 (없으면 null)
   const [motorcycleImage, setMotorcycleImage] = useState<string | null>(
     initialImage || null
   );
-
-  // [추가됨] Hero 섹션에서 이미지가 넘어오면 자동으로 상태 업데이트
-  useEffect(() => {
-    if (initialImage) {
-      setMotorcycleImage(initialImage);
-    }
-  }, [initialImage]);
 
   const [partStatuses, setPartStatuses] = useState<PartGenerationStatus[]>([
     { partType: "exhaust", taskId: null, status: "idle", progress: 0 },
@@ -47,31 +37,22 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   const [generatedModels, setGeneratedModels] = useState<ModelOption[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
 
-  // debugging states
-  const [debugMode, setDebugMode] = useState(true);
-  const [debugModelUrl, setDebugModelUrl] = useState("");
+  // Debug mode: auto-detect (true when no initialImage provided)
+  const isDebugMode = !initialImage;
+  const [debugMode, setDebugMode] = useState(isDebugMode);
+
+  // Error and auto-generation states
+  const [hasGenerationError, setHasGenerationError] = useState(false);
+  const [autoGenerationTriggered, setAutoGenerationTriggered] = useState(false);
+
+  const wsRefs = useRef<Map<string, WebSocket>>(new Map());
 
   // ---------------------------------------------------------
-  // 👇 기존 로직들 (백엔드 연동) - 그대로 유지됨
+  // Debug Mode Functions
   // ---------------------------------------------------------
-
-  const addDebugModel = () => {
-    if (!debugModelUrl.trim()) return;
-    const newModel: ModelOption = {
-      id: `debug-${Date.now()}`,
-      name: `Debug Model`,
-      url: debugModelUrl,
-      partType: "debug",
-    };
-    setGeneratedModels((prev) => [...prev, newModel]);
-    setSelectedModelId(newModel.id);
-    setDebugModelUrl("");
-  };
 
   const loadSampleModel = () => {
-    const sampleModels = [
-      { name: "Duck", url: "/models/1.glb" }, // public 폴더에 파일이 있어야 함
-    ];
+    const sampleModels = [{ name: "Duck", url: "/models/1.glb" }];
     const sample =
       sampleModels[Math.floor(Math.random() * sampleModels.length)];
     const newModel: ModelOption = {
@@ -98,7 +79,9 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     setSelectedModelId(newModel.id);
   };
 
-  const wsRefs = useRef<Map<string, WebSocket>>(new Map());
+  // ---------------------------------------------------------
+  // Main Functions
+  // ---------------------------------------------------------
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -121,8 +104,9 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
       { partType: "frame", taskId: null, status: "idle", progress: 0 },
       { partType: "full-bike", taskId: null, status: "idle", progress: 0 },
     ]);
+    setHasGenerationError(false);
+    setAutoGenerationTriggered(false);
 
-    // 모든 WebSocket 연결 종료
     wsRefs.current.forEach((ws) => ws.close());
     wsRefs.current.clear();
   };
@@ -136,7 +120,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     }
   };
 
-  // 파트 상태 업데이트 헬퍼
   const updatePartStatus = (
     partType: string,
     updates: Partial<PartGenerationStatus>
@@ -146,7 +129,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     );
   };
 
-  // WebSocket 연결
   const connectWebSocket = (
     taskId: string,
     partType: string,
@@ -181,8 +163,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
           };
 
           setGeneratedModels((prev) => [...prev, newModel]);
-
-          // 첫 번째 완료된 모델 자동 선택
           setSelectedModelId((prev) => prev || taskId);
           ws.close();
         } else if (status.status === "FAILED") {
@@ -198,7 +178,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     };
   };
 
-  // 파트별 추출 함수들
   const extractPart = async (
     formData: FormData,
     partType: string
@@ -210,7 +189,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
       "full-bike": "/extract_full",
     };
 
-    // full-bike는 추출 없이 원본 이미지 사용
     if (partType === "full-bike") {
       return formData;
     }
@@ -234,7 +212,6 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     return resData;
   };
 
-  // 단일 파트 3D 생성
   const generateSinglePart = async (
     partType: string,
     baseFormData: FormData
@@ -242,12 +219,10 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     try {
       updatePartStatus(partType, { status: "extracting", progress: 0 });
 
-      // 1. 파트 추출
       const extractedData = await extractPart(baseFormData, partType);
 
       updatePartStatus(partType, { status: "generating", progress: 10 });
 
-      // 2. 3D 생성 요청
       const res = await fetch("http://127.0.0.1:8080/api/3d/create", {
         method: "POST",
         body: extractedData,
@@ -272,18 +247,16 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
     }
   };
 
-  // 올인원 생성 - 모든 파트 병렬 실행
   const generateAllParts = async () => {
     if (!motorcycleImage) return;
 
-    // 상태 초기화
     setGeneratedModels([]);
     setSelectedModelId(null);
+    setHasGenerationError(false);
 
     const base64Response = await fetch(motorcycleImage);
     const blob = await base64Response.blob();
 
-    // 모든 파트 병렬 생성
     const partTypes = ["exhaust", "seat", "frame", "full-bike"];
 
     await Promise.all(
@@ -311,6 +284,31 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   const completedCount = partStatuses.filter(
     (p) => p.status === "completed"
   ).length;
+  const failedCount = partStatuses.filter((p) => p.status === "failed").length;
+
+  // Auto-start generation when initialImage is provided
+  useEffect(() => {
+    if (initialImage && !autoGenerationTriggered && motorcycleImage) {
+      setAutoGenerationTriggered(true);
+      setTimeout(() => {
+        generateAllParts();
+      }, 500);
+    }
+  }, [initialImage, autoGenerationTriggered, motorcycleImage]);
+
+  // Check for complete failure (all parts failed)
+  useEffect(() => {
+    const allStarted = partStatuses.some((p) => p.status !== "idle");
+    if (allStarted && failedCount === partStatuses.length && failedCount > 0) {
+      setHasGenerationError(true);
+    }
+  }, [failedCount, partStatuses]);
+
+  useEffect(() => {
+    if (initialImage) {
+      setMotorcycleImage(initialImage);
+    }
+  }, [initialImage]);
 
   useEffect(() => {
     return () => {
@@ -319,140 +317,119 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   }, []);
 
   // ---------------------------------------------------------
-  // 👇 UI 렌더링
+  // UI 렌더링
   // ---------------------------------------------------------
 
   return (
     <section
       id="customizer-workshop"
-      className="border-b border-border py-16 md:py-24 bg-black/50 text-white"
+      className="h-full  flex items-center py-4 md:py-16 bg-black/50 text-foreground"
     >
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              3D Motorcycle Customization Workshop
-            </h2>
-            <p className="text-muted-foreground">
-              Upload your motorcycle image and generate 3D models for all parts
-              automatically
-            </p>
-          </div>
-
-          <div className="space-y-8">
-            {/* Debug Panel */}
+      <div className="container  mx-auto px-4">
+        <div className=" mx-auto max-w-6xl">
+          <div className="flex flex-col items-stretch space-y-8">
+            {/* Compact Debug Panel */}
             {debugMode && (
-              <Card className="p-6 border-yellow-500 bg-yellow-500/10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-yellow-500">
-                    Debug Mode
+              <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h3 className="text-xs font-semibold text-yellow-500 uppercase tracking-wider">
+                    Debug Tools
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setDebugMode(false)}
+                    className="h-6 px-2 text-xs"
                   >
                     Hide
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {/* URL 입력 */}
-                  <div className="flex gap-2">
-                    <label
-                      style={{
-                        padding: "8px 16px",
-                        backgroundColor: "#4a90d9",
-                        color: "white",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Load Model File
-                      <Input
-                        onChange={loadLocalModel}
-                        type="file"
-                        accept=".glb"
-                        className="hidden"
-                        id="local-model-input"
-                      />
-                    </label>
-                  </div>
-
-                  {/* [추가됨] 샘플 이미지 로드 버튼 */}
-                  <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 flex-wrap">
+                  <label className="cursor-pointer">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        setMotorcycleImage(
-                          "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=600&auto=format&fit=crop"
-                        )
+                      className="h-7 px-2 text-xs"
+                      asChild
+                    >
+                      <span>
+                        Load .glb
+                        <Input
+                          onChange={loadLocalModel}
+                          type="file"
+                          accept=".glb"
+                          className="hidden"
+                        />
+                      </span>
+                    </Button>
+                  </label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setMotorcycleImage(
+                        "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=600&auto=format&fit=crop"
+                      )
+                    }
+                    className="h-7 px-2 text-xs"
+                  >
+                    Sample Image
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadSampleModel}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Sample Model
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const taskId = prompt("Enter task ID:");
+                      if (taskId) {
+                        const newModel: ModelOption = {
+                          id: taskId,
+                          name: `Task: ${taskId.slice(0, 8)}...`,
+                          url: `http://127.0.0.1:8080/api/3d/model/${taskId}`,
+                          partType: "debug",
+                        };
+                        setGeneratedModels((prev) => [...prev, newModel]);
+                        setSelectedModelId(newModel.id);
                       }
-                    >
-                      Load Sample Image
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={loadSampleModel}
-                    >
-                      Load Sample Model
-                    </Button>
-                    {/* ... 기존 버튼들 유지 ... */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const taskId = prompt("Enter task ID:");
-                        if (taskId) {
-                          const newModel: ModelOption = {
-                            id: taskId,
-                            name: `Task: ${taskId.slice(0, 8)}...`,
-                            url: `http://127.0.0.1:8080/api/3d/model/${taskId}`,
-                            partType: "debug",
-                          };
-                          setGeneratedModels((prev) => [...prev, newModel]);
-                          setSelectedModelId(newModel.id);
-                        }
-                      }}
-                    >
-                      Load by Task ID
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        setGeneratedModels([]);
-                        setSelectedModelId(null);
-                        setMotorcycleImage(null); // 이미지도 같이 초기화
-                      }}
-                    >
-                      Clear All
-                    </Button>
-                  </div>
-
+                    }}
+                    className="h-7 px-2 text-xs"
+                  >
+                    By Task ID
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setGeneratedModels([]);
+                      setSelectedModelId(null);
+                      setMotorcycleImage(null);
+                    }}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Clear
+                  </Button>
                   {generatedModels.length > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                      <p className="font-semibold mb-1">Loaded Models:</p>
-                      <ul className="space-y-1">
-                        {generatedModels.map((m) => (
-                          <li key={m.id} className="truncate">
-                            • {m.name}: {m.url.slice(0, 50)}...
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <span className="text-xs text-muted-foreground self-center ml-1">
+                      ({generatedModels.length} loaded)
+                    </span>
                   )}
                 </div>
               </Card>
             )}
 
-            {/* 3D Viewer - 디버그 모드면 항상 표시 */}
+            {/* 3D Viewer */}
             {(debugMode || generatedModels.length > 0) && (
               <Card className="p-6 bg-[#111] border-gray-800">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-lg font-semibold text-foreground">
                     3D Model Viewer
                     {generatedModels.length > 0 && (
                       <span className="ml-2 text-sm font-normal text-muted-foreground">
@@ -493,140 +470,143 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     onModelSelect={setSelectedModelId}
                     showControls={true}
                     autoRotate={false}
-                    className="h-[600px] border border-gray-700 rounded-lg"
+                    className="h-auto border border-gray-700 rounded-lg"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-[600px] border-2 border-dashed border-gray-700 rounded-lg text-gray-500">
-                    <p>Load a model using the debug panel above ☝️</p>
+                    <p>Load a model using the debug panel above </p>
                   </div>
                 )}
               </Card>
             )}
 
-            {/* Upload Section */}
-            <Card className="p-10 bg-[#111] border-gray-800">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                  1
-                </span>
-                Upload Your Motorcycle Image
-              </h3>
-
-              <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-700 bg-gray-900/50 hover:border-blue-500/50 transition-colors">
-                <Upload className="mb-2 h-8 w-8 text-gray-400" />
-                <span className="text-sm text-gray-400">
-                  {motorcycleImage ? "Change image" : "Click to upload"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-              </label>
-
-              {motorcycleImage && (
-                <div className="mt-4 rounded-lg border border-gray-700 overflow-hidden">
-                  <img
-                    src={motorcycleImage}
-                    alt="Motorcycle"
-                    className="h-64 w-full object-contain bg-black"
-                  />
-                </div>
-              )}
-
-              {/* 올인원 생성 버튼 */}
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={generateAllParts}
-                  disabled={isGenerating || !motorcycleImage}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg transition-all"
-                >
-                  {isGenerating
-                    ? `Generating... (${completedCount}/4 complete)`
-                    : "Generate All 3D Models"}
-                </button>
-              </div>
-            </Card>
-
-            {/* 파트별 상태 표시 */}
-            {isGenerating || completedCount > 0 ? (
-              <Card className="p-6 bg-[#111] border-gray-800">
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  Generation Progress
+            {/* Upload Section - Only show if no initialImage was provided */}
+            {/* 
+            <>
+            {!initialImage && (
+              <Card className="p-10 bg-[#111] border-gray-800">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                    1
+                  </span>
+                  Upload Your Motorcycle Image
                 </h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {partStatuses.map((part) => (
-                    <div
-                      key={part.partType}
-                      className={`
-                        p-4 rounded-lg border-2 transition-all
-                        ${
-                          part.status === "completed"
-                            ? "border-green-500 bg-green-900/20"
-                            : ""
-                        }
-                        ${
-                          part.status === "failed"
-                            ? "border-red-500 bg-red-900/20"
-                            : ""
-                        }
-                        ${
-                          part.status === "generating" ||
-                          part.status === "extracting"
-                            ? "border-blue-500 bg-blue-900/20"
-                            : ""
-                        }
-                        ${
-                          part.status === "idle"
-                            ? "border-gray-800 bg-gray-900"
-                            : ""
-                        }
-                      `}
-                    >
-                      <div className="text-center">
-                        <p className="font-semibold text-sm mb-2 text-gray-200">
-                          {getPartDisplayName(part.partType)}
-                        </p>
+                <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-700 bg-gray-900/50 hover:border-blue-500/50 transition-colors">
+                  <Upload className="mb-2 h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-400">
+                    {motorcycleImage ? "Change image" : "Click to upload"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                </label>
 
-                        {part.status === "idle" && (
-                          <span className="text-gray-500 text-xs">
-                            Waiting...
-                          </span>
-                        )}
-                        {part.status === "extracting" && (
-                          <span className="text-blue-400 text-xs">
-                            Extracting...
-                          </span>
-                        )}
-                        {part.status === "generating" && (
-                          <div>
-                            <span className="text-blue-400 text-xs">
-                              {part.progress}%
-                            </span>
-                            <div className="mt-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500 transition-all duration-300"
-                                style={{ width: `${part.progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                        {part.status === "completed" && (
-                          <span className="text-green-400 text-xs">
-                            Complete
-                          </span>
-                        )}
-                        {part.status === "failed" && (
-                          <span className="text-red-400 text-xs">Failed</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                {motorcycleImage && (
+                  <div className="mt-4 rounded-lg border border-gray-700 overflow-hidden">
+                    <img
+                      src={motorcycleImage}
+                      alt="Motorcycle"
+                      className="h-64 w-full object-contain bg-black"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={generateAllParts}
+                    disabled={isGenerating || !motorcycleImage}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg transition-all"
+                  >
+                    {isGenerating
+                      ? `Generating... (${completedCount}/4 complete)`
+                      : "Generate All 3D Models"}
+                  </button>
                 </div>
               </Card>
-            ) : null}
+            )}
+            </>
+             */}
+
+            {/* Error Message - Show when generation completely fails */}
+            {hasGenerationError && !isGenerating && (
+              <Card className="p-8 bg-red-900/10 border-red-500/50">
+                <div className="text-center space-y-4">
+                  <div className="flex justify-center">
+                    <div className="rounded-full bg-red-500/20 p-4">
+                      <svg
+                        className="h-12 w-12 text-red-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-semibold text-red-400">
+                    Generation Failed
+                  </h3>
+                  <p className="text-gray-300 max-w-md mx-auto">
+                    Unable to process this image. Please ensure the image
+                    contains a motorcycle and try again.
+                  </p>
+                  <div className="flex gap-3 justify-center pt-2">
+                    <Button
+                      onClick={() => {
+                        setHasGenerationError(false);
+                        setAutoGenerationTriggered(false);
+                        setPartStatuses([
+                          {
+                            partType: "exhaust",
+                            taskId: null,
+                            status: "idle",
+                            progress: 0,
+                          },
+                          {
+                            partType: "seat",
+                            taskId: null,
+                            status: "idle",
+                            progress: 0,
+                          },
+                          {
+                            partType: "frame",
+                            taskId: null,
+                            status: "idle",
+                            progress: 0,
+                          },
+                          {
+                            partType: "full-bike",
+                            taskId: null,
+                            status: "idle",
+                            progress: 0,
+                          },
+                        ]);
+                        if (motorcycleImage) {
+                          generateAllParts();
+                        }
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Try Again
+                    </Button>
+                    <Button onClick={handleReset} variant="outline">
+                      Upload New Image
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Part-level progress display - REMOVED per requirement #5 */}
           </div>
         </div>
       </div>
