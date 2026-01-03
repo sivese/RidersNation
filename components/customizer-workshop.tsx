@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useRef, useEffect } from "react";
 import { Upload, RotateCcw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Model3DViewer } from "@/components/three";
 import { ModelOption } from "@/components/three/types";
 import { fileToBase64 } from "@/lib/base64";
 import { Input } from "./ui/input";
+
 
 // 기존 인터페이스 유지
 interface PartGenerationStatus {
@@ -37,6 +39,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   const [generatedModels, setGeneratedModels] = useState<ModelOption[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
 
+
   // Debug mode: auto-detect (true when no initialImage provided)
   const isDebugMode = !initialImage;
   const [debugMode, setDebugMode] = useState(isDebugMode);
@@ -47,9 +50,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
 
   const wsRefs = useRef<Map<string, WebSocket>>(new Map());
 
-  // ---------------------------------------------------------
-  // Debug Mode Functions
-  // ---------------------------------------------------------
+
 
   const loadSampleModel = () => {
     const sampleModels = [{ name: "Duck", url: "/models/1.glb" }];
@@ -82,6 +83,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   // ---------------------------------------------------------
   // Main Functions
   // ---------------------------------------------------------
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -325,6 +327,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
       id="customizer-workshop"
       className="h-full  flex items-center py-4 md:py-16 bg-black/50 text-foreground"
     >
+
       <div className="container  mx-auto px-4">
         <div className=" mx-auto max-w-6xl">
           <div className="flex flex-col items-stretch space-y-8">
@@ -490,6 +493,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     1
                   </span>
                   Upload Your Motorcycle Image
+
                 </h3>
 
                 <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-700 bg-gray-900/50 hover:border-blue-500/50 transition-colors">
