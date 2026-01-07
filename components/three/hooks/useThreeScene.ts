@@ -1,6 +1,7 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 interface UseThreeSceneParams {
   containerRef: RefObject<HTMLDivElement>;
@@ -38,7 +39,7 @@ export function useThreeScene({
 
     // Scene
     const newScene = new THREE.Scene();
-    newScene.background = new THREE.Color(0xf5f5f5);
+    newScene.background = new THREE.Color(0x0a0a0a);
 
     // Camera
     const newCamera = new THREE.PerspectiveCamera(
@@ -54,7 +55,10 @@ export function useThreeScene({
     // Renderer
     const newRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     newRenderer.setSize(container.clientWidth, container.clientHeight);
-    newRenderer.shadowMap.enabled = true;
+    newRenderer.shadowMap.enabled = true;    
+    newRenderer.toneMapping = THREE.ACESFilmicToneMapping; 
+    newRenderer.toneMappingExposure = 1.0; 
+    newRenderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(newRenderer.domElement);
 
     // Controls
@@ -67,14 +71,41 @@ export function useThreeScene({
     // Lights
     setupLights(newScene);
 
-    // Grid
-    const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
-    newScene.add(gridHelper);
+    // // Grid
+    // const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+    // newScene.add(gridHelper);
 
     setScene(newScene);
     setCamera(newCamera);
     setRenderer(newRenderer);
     setControls(newControls);
+
+    const loader = new GLTFLoader();
+
+    // public 폴더 기준 경로 (예: /models/studio.glb)
+    loader.load('/models/showcase.glb', (gltf) => {
+    const model = gltf.scene;
+
+    // 2. 그림자 설정 (모델의 모든 파츠를 순회하며 그림자 켜기)
+    model.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true;    // 그림자를 만듦
+        child.receiveShadow = true; // 그림자를 받음 (바닥 등)
+        
+        // 재질이 너무 어두우면 강제로 밝게 조정 (옵션)
+        // const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+        // mat.envMapIntensity = 1.0; 
+      }
+    });
+
+      // 모델 위치/크기 조정
+      model.scale.set(3, 3, 3); 
+      model.position.set(0, 0, 0);
+
+      newScene.add(model);
+    }, undefined, (error) => {
+      console.error('모델 로드 에러:', error);
+    });
 
     // Animation loop
     let animationFrameId : number;
@@ -125,33 +156,38 @@ export function useThreeScene({
 
 // 조명 설정 헬퍼
 function setupLights(scene: THREE.Scene) {
+
+  scene.fog = new THREE.FogExp2(0x0a0a0a,0.05);
   // Ambient
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
   scene.add(ambientLight);
 
   // Spot light
-  const spotLight = new THREE.SpotLight(0xffffff, 2);
+  const spotLight = new THREE.SpotLight(0xffffff, 500);
   spotLight.position.set(0, 10, 0);
-  spotLight.angle = Math.PI / 6;
-  spotLight.penumbra = 0.5;
-  spotLight.decay = 1.5;
-  spotLight.distance = 30;
+  spotLight.angle = Math.PI / 8;
+  spotLight.penumbra = 1;
+  spotLight.decay = 2;
+  spotLight.distance = 50;
   spotLight.castShadow = true;
   spotLight.shadow.mapSize.width = 1024;
   spotLight.shadow.mapSize.height = 1024;
+  spotLight.shadow.bias = -0.0001;
   scene.add(spotLight);
 
   spotLight.target.position.set(0, 0, 0);
   scene.add(spotLight.target);
 
-  // Warm point light
-  const warmLight = new THREE.PointLight(0xffaa55, 0.3);
-  warmLight.position.set(5, 3, 5);
-  scene.add(warmLight);
+  // // Warm point light
+  // const warmLight = new THREE.PointLight(0xffaa55, 0.3);
+  // warmLight.position.set(5, 3, 5);
+  // scene.add(warmLight);
 
-  // Directional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(5, 10, 5);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
+  // // Directional
+  // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+  // directionalLight.position.set(5, 10, 5);
+  // directionalLight.castShadow = true;
+  // scene.add(directionalLight);
+
+  
 }
