@@ -325,19 +325,26 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
   return (
     <section
       id="customizer-workshop"
-      className="h-full  flex items-center py-4 md:py-16 bg-black/50 text-foreground"
+      className="h-full flex items-center  bg-black/50 text-foreground"
     >
 
-      <div className="container  mx-auto px-4">
-        <div className=" mx-auto max-w-6xl">
-          <div className="flex flex-col items-stretch space-y-8">
+      <div className="container h-full w-full flex justify-self-stretch mx-auto px-4">
+        
+          <div className="relative flex flex-col w-full h-full space-y-6 lg:space-y-8 ">
             {/* Compact Debug Panel */}
             {debugMode && (
-              <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <h3 className="text-xs font-semibold text-yellow-500 uppercase tracking-wider">
+              <Card className="absolute z-999  bottom-0 right-0   w-fit max-w-[95%] flex flex-col p-2.5 lg:p-3 border-yellow-500/50 bg-black/75">
+                <div className="flex flex-row justify-between items-center">
+                  <div className="flex flex-row gap-1 items-center">
+                  <h3 className="text-[10px] lg:text-xs font-semibold text-yellow-500 uppercase tracking-wider">
                     Debug Tools
                   </h3>
+                  {generatedModels.length > 0 && (
+                    <span className="text-xs text-muted-foreground self-center ml-1">
+                      ({generatedModels.length} loaded)
+                    </span>
+                  )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -345,10 +352,10 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     className="h-6 px-2 text-xs"
                   >
                     Hide
-                  </Button>
+                </Button>
                 </div>
 
-                <div className="flex gap-1.5 flex-wrap">
+                <div className="flex gap-2 flex-wrap">
                   <label className="cursor-pointer">
                     <Button
                       variant="outline"
@@ -419,39 +426,38 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                   >
                     Clear
                   </Button>
-                  {generatedModels.length > 0 && (
-                    <span className="text-xs text-muted-foreground self-center ml-1">
-                      ({generatedModels.length} loaded)
-                    </span>
-                  )}
+                  
                 </div>
+
+              
               </Card>
             )}
 
             {/* 3D Viewer */}
             {(debugMode || generatedModels.length > 0) && (
-              <Card className="p-6 bg-[#111] border-gray-800">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">
+              <Card className="w-full h-[60vh] lg:h-[80vh] bg-[#111] border-gray-800 flex flex-col overflow-hidden p-4">
+                <div className="p-2  flex items-center justify-between ">
+                  <h3 className="text-xs lg:text-base xl:text-lg font-semibold text-foreground pointer-events-auto">
                     3D Model Viewer
                     {generatedModels.length > 0 && (
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
+                      <span className="ml-2 text-[10px] lg:text-xs xl:text-sm font-normal text-muted-foreground">
                         ({generatedModels.length} models)
                       </span>
                     )}
                   </h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pointer-events-auto">
                     {!debugMode && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setDebugMode(true)}
+                        className="text-xs lg:text-xs xl:text-sm"
                       >
                         Debug
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={handleReset}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" onClick={handleReset} className="text-xs lg:text-xs xl:text-sm">
+                      <RotateCcw className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
                       Reset
                     </Button>
                     <Button
@@ -459,13 +465,14 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                       size="sm"
                       onClick={handleDownload}
                       disabled={!selectedModelId}
+                      className="text-xs lg:text-xs xl:text-sm"
                     >
-                      <Download className="h-4 w-4 mr-2" />
+                      <Download className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
                       Download
                     </Button>
                   </div>
                 </div>
-
+                <div className="flex-1 w-full h-full relative ">
                 {generatedModels.length > 0 ? (
                   <Model3DViewer
                     modelOptions={generatedModels}
@@ -473,13 +480,14 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     onModelSelect={setSelectedModelId}
                     showControls={true}
                     autoRotate={false}
-                    className="h-auto border border-gray-700 rounded-lg"
+                    className="w-full h-full absolute inset-0 focus:outline-none"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-[600px] border-2 border-dashed border-gray-700 rounded-lg text-gray-500">
-                    <p>Load a model using the debug panel above </p>
+                  <div className="flex items-center justify-center w-full h-full border-2 border-dashed border-gray-700 text-gray-500">
+                    <p className="text-xs lg:text-sm xl:text-base">Load a model using the debug panel above</p>
                   </div>
                 )}
+                </div>
               </Card>
             )}
 
@@ -537,12 +545,12 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
 
             {/* Error Message - Show when generation completely fails */}
             {hasGenerationError && !isGenerating && (
-              <Card className="p-8 bg-red-900/10 border-red-500/50">
-                <div className="text-center space-y-4">
+              <Card className="p-6 lg:p-8 bg-red-900/10 border-red-500/50">
+                <div className="text-center space-y-3 lg:space-y-4">
                   <div className="flex justify-center">
-                    <div className="rounded-full bg-red-500/20 p-4">
+                    <div className="rounded-full bg-red-500/20 p-3 lg:p-4">
                       <svg
-                        className="h-12 w-12 text-red-400"
+                        className="h-10 w-10 lg:h-12 lg:w-12 text-red-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -556,10 +564,10 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                       </svg>
                     </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-red-400">
+                  <h3 className="text-base lg:text-lg xl:text-xl font-semibold text-red-400">
                     Generation Failed
                   </h3>
-                  <p className="text-gray-300 max-w-md mx-auto">
+                  <p className="text-xs lg:text-sm xl:text-base text-gray-300 max-w-md mx-auto">
                     Unable to process this image. Please ensure the image
                     contains a motorcycle and try again.
                   </p>
@@ -598,11 +606,11 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                           generateAllParts();
                         }
                       }}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="bg-blue-600 hover:bg-blue-700 text-xs lg:text-sm"
                     >
                       Try Again
                     </Button>
-                    <Button onClick={handleReset} variant="outline">
+                    <Button onClick={handleReset} variant="outline" className="text-xs lg:text-sm">
                       Upload New Image
                     </Button>
                   </div>
@@ -613,7 +621,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
             {/* Part-level progress display - REMOVED per requirement #5 */}
           </div>
         </div>
-      </div>
+      
     </section>
   );
 }

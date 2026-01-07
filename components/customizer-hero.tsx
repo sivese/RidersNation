@@ -44,7 +44,7 @@ export function CustomizerHero({
         {/* Main Title */}
         <div className="mb-12">
           {/* globals.css에서 h1은 기본적으로 font-semibold가 적용됨 */}
-          <h1 className="text-5xl leading-tight md:text-6xl text-white">
+          <h1 className="text-4xl leading-tight md:text-5xl lg:text-5xl xl:text-6xl text-white">
             Re-visualize
             <br />
             {/* 강조하고 싶은 부분에 Water Fill 애니메이션 적용 */}
@@ -68,8 +68,8 @@ export function CustomizerHero({
         >
           {!selectedImage && (
             <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground group-hover:text-primary">
-              <Upload className="mb-4 h-12 w-12" />
-              <span className="text-sm font-semibold tracking-wider">
+              <Upload className="mb-4 h-10 w-10 lg:h-12 lg:w-12" />
+              <span className="text-xs lg:text-sm font-semibold tracking-wider">
                 CLICK TO UPLOAD
               </span>
             </div>
@@ -96,26 +96,26 @@ export function CustomizerHero({
           <div className="mt-8 flex items-center justify-center gap-4 animate-fade-in">
             <button
               onClick={startVisualization}
-              className="flex items-center gap-3 rounded-full bg-card border border-border px-8 py-3 font-bold text-white hover:bg-zinc-800 hover:scale-105 active:scale-95 transition-all"
+              className="flex items-center gap-2 lg:gap-3 rounded-full bg-card border border-border px-6 py-2 lg:px-8 lg:py-3 text-xs lg:text-sm font-bold text-white hover:bg-zinc-800 hover:scale-105 active:scale-95 transition-all"
             >
               <img
                 src="/cube.png"
                 alt="Visualize Icon"
-                className="h-6 w-6 object-contain"
+                className="h-5 w-5 lg:h-6 lg:w-6 object-contain"
               />
               VISUALIZE
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-full bg-card border border-border text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors"
+              className="p-2 lg:p-3 rounded-full bg-card border border-border text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors"
             >
-              <Upload className="h-5 w-5" />
+              <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
             </button>
             <button
               onClick={handleReset}
-              className="p-3 rounded-full bg-card border border-border text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors"
+              className="p-2 lg:p-3 rounded-full bg-card border border-border text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 lg:h-5 lg:w-5" />
             </button>
           </div>
         )}
@@ -124,9 +124,9 @@ export function CustomizerHero({
         <div className="absolute -bottom-16 left-0 right-0 z-20 flex flex-col items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
           <button
             onClick={onDebugClick}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary underline decoration-dotted underline-offset-4"
+            className="flex items-center gap-2 text-[10px] lg:text-xs text-muted-foreground hover:text-primary underline decoration-dotted underline-offset-4"
           >
-            <Wrench className="h-3 w-3" />
+            <Wrench className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
             Developer Debug Mode
           </button>
         </div>

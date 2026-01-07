@@ -30,18 +30,18 @@ export function CustomizerFeatures() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-balance text-3xl font-bold text-foreground md:text-4xl">Built for Riders</h2>
-            <p className="text-pretty text-muted-foreground">Everything you need to visualize your custom build</p>
+            <h2 className="mb-4 text-balance text-2xl font-bold text-foreground md:text-3xl lg:text-3xl xl:text-4xl">Built for Riders</h2>
+            <p className="text-pretty text-sm lg:text-sm xl:text-base text-muted-foreground">Everything you need to visualize your custom build</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
-              <Card key={index} className="border-border bg-card p-6 transition-colors hover:border-primary/50">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <feature.icon className="h-6 w-6 text-primary" />
+              <Card key={index} className="border-border bg-card p-4 lg:p-6 transition-colors hover:border-primary/50">
+                <div className="mb-3 lg:mb-4 inline-flex h-10 w-10 lg:h-12 lg:w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <feature.icon className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 font-semibold text-card-foreground">{feature.title}</h3>
-                <p className="text-pretty text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+                <h3 className="mb-2 text-sm lg:text-base font-semibold text-card-foreground">{feature.title}</h3>
+                <p className="text-pretty text-xs lg:text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
               </Card>
             ))}
           </div>

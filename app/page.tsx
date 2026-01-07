@@ -110,13 +110,13 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
         {showDebug && (
           <div className="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-900/90 p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-2">
-            <div className="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <div className="mb-2 text-[10px] lg:text-xs font-bold text-gray-500 uppercase tracking-wider">
               Debug Router
             </div>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => setScreen("splash")}
-                className={`px-4 py-2 text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-xs lg:text-sm rounded text-left transition-all ${
                   screen === "splash"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -126,7 +126,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setScreen("walkthrough")}
-                className={`px-4 py-2 text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-xs lg:text-sm rounded text-left transition-all ${
                   screen === "walkthrough"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -136,7 +136,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setScreen("home")}
-                className={`px-4 py-2 text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-xs lg:text-sm rounded text-left transition-all ${
                   screen === "home"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -209,14 +209,14 @@ export default function Home() {
           */}
           {isLoading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-300">
-              <div className="relative w-[500px] max-w-[90%] bg-black border border-cyan-500/30 rounded-3xl p-12 text-center shadow-[0_0_50px_rgba(0,195,255,0.15)]">
+              <div className="relative w-[500px] max-w-[90%] bg-black border border-cyan-500/30 rounded-3xl p-8 lg:p-12 text-center shadow-[0_0_50px_rgba(0,195,255,0.15)]">
                 {/* Title */}
-                <h3 className="text-gray-300 text-lg font-medium mb-8 animate-pulse">
+                <h3 className="text-gray-300 text-base lg:text-lg font-medium mb-6 lg:mb-8 animate-pulse">
                   {loadingText}
                 </h3>
 
                 {/* Progress Bar and Percentage */}
-                <div className="flex flex-col items-center justify-center mb-8">
+                <div className="flex flex-col items-center justify-center mb-6 lg:mb-8">
                   <div className="w-3/4 h-2 bg-gray-800 rounded-full overflow-hidden mb-4 ring-1 ring-white/10">
                     <div
                       className="h-full bg-gradient-to-r from-cyan-400 to-blue-600 shadow-[0_0_10px_#00c3ff]"
@@ -226,7 +226,7 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <span className="text-3xl font-bold text-white tracking-widest drop-shadow-md">
+                  <span className="text-2xl lg:text-3xl font-bold text-white tracking-widest drop-shadow-md">
                     {progress}%
                   </span>
                 </div>
@@ -234,7 +234,7 @@ export default function Home() {
                 {/* Cancel Button */}
                 <button
                   onClick={handleCancelLoading}
-                  className="px-6 py-2 rounded-full bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all text-sm"
+                  className="px-4 py-1.5 lg:px-6 lg:py-2 rounded-full bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all text-xs lg:text-sm"
                 >
                   Cancel
                 </button>
