@@ -23,16 +23,18 @@ export function Model3DViewer({
 }: Model3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState<EditMode>('camera');
+  const [showBackground, setShowBackground] = useState(true);
 
   // Scene 초기화
   const { scene, camera, renderer, controls } = useThreeScene({
     containerRef,
     autoRotate,
+    showBackground,
   });
 
   // 모델 로딩
   const currentModelUrl = selectedModelId
-    ? modelOptions.find((m) => m.id === selectedModelId)?.url
+    ? modelOptions.find((m) => m.id === selectedModelId)?.url || null
     : modelOptions[0]?.url || null;
 
   const { model, originalMaterials, isLoading } = useModelLoader({
@@ -68,6 +70,8 @@ export function Model3DViewer({
         onViewModeChange={setViewMode}
         editMode={editMode}
         onEditModeChange={setEditMode}
+        showBackground={showBackground}
+        onShowBackgroundChange={setShowBackground}
       />
 
       <div className="relative">

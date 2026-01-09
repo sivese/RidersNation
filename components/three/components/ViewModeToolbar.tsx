@@ -1,4 +1,4 @@
-import { Eye, Grid3x3, Palette, Box, Move, Video } from 'lucide-react';
+import { Eye, Grid3x3, Palette, Box, Move, Video, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ViewMode, EditMode } from '../types';
 
@@ -7,6 +7,8 @@ interface ViewModeToolbarProps {
   onViewModeChange: (mode: ViewMode) => void;
   editMode: EditMode;
   onEditModeChange: (mode: EditMode) => void;
+  showBackground: boolean;
+  onShowBackgroundChange: (show: boolean) => void;
 }
 
 export function ViewModeToolbar({
@@ -14,6 +16,8 @@ export function ViewModeToolbar({
   onViewModeChange,
   editMode,
   onEditModeChange,
+  showBackground,
+  onShowBackgroundChange,
 }: ViewModeToolbarProps) {
   return (
     <div className="mb-4 flex gap-2 flex-wrap items-center">
@@ -54,6 +58,22 @@ export function ViewModeToolbar({
         >
           <Box className="h-4 w-4" />
           Wire+Gray
+        </Button>
+      </div>
+
+      {/* Divider */}
+      <div className="w-px h-6 bg-gray-300 mx-2" />
+
+      {/* Studio Background Toggle */}
+      <div className="flex gap-2">
+        <Button
+          variant={showBackground ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onShowBackgroundChange(!showBackground)}
+          className="gap-2"
+        >
+          <Layers className="h-4 w-4" />
+          {showBackground ? 'Studio ON' : 'Focus Mode'}
         </Button>
       </div>
 

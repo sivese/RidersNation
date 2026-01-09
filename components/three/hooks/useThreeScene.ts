@@ -6,6 +6,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 interface UseThreeSceneParams {
   containerRef: RefObject<HTMLDivElement>;
   autoRotate?: boolean;
+  showBackground?: boolean;
 }
 
 interface UseThreeSceneReturn {
@@ -18,6 +19,7 @@ interface UseThreeSceneReturn {
 export function useThreeScene({
   containerRef,
   autoRotate = false,
+  showBackground = true,
 }: UseThreeSceneParams): UseThreeSceneReturn {
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
@@ -25,6 +27,8 @@ export function useThreeScene({
   const [controls, setControls] = useState<OrbitControls | null>(null);
 
   const animationFrameRef = useRef<number | null>(null);
+  const backgroundRef = useRef<THREE.Group | null>(null);
+  const bottomLightRef = useRef<THREE.DirectionalLight | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -39,7 +43,7 @@ export function useThreeScene({
 
     // Scene
     const newScene = new THREE.Scene();
-    newScene.background = new THREE.Color(0x0a0a0a);
+    newScene.background = new THREE.Color(0x1f1f1f);
 
     // Camera
     const newCamera = new THREE.PerspectiveCamera(
@@ -57,7 +61,7 @@ export function useThreeScene({
     newRenderer.setSize(container.clientWidth, container.clientHeight);
     newRenderer.shadowMap.enabled = true;    
     newRenderer.toneMapping = THREE.ACESFilmicToneMapping; 
-    newRenderer.toneMappingExposure = 1.0; 
+    newRenderer.toneMappingExposure = 1.4; 
     newRenderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(newRenderer.domElement);
 
@@ -70,6 +74,14 @@ export function useThreeScene({
 
     // Lights
     setupLights(newScene);
+
+    // Bottom light for viewing from below
+    const bottomLight = new THREE.DirectionalLight(0xffffff, 0);
+    bottomLight.position.set(0, -5, 0);
+    bottomLight.target.position.set(0, 0, 0);
+    newScene.add(bottomLight);
+    newScene.add(bottomLight.target);
+    bottomLightRef.current = bottomLight;
 
     // // Grid
     // const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
@@ -102,6 +114,9 @@ export function useThreeScene({
       model.scale.set(3, 3, 3); 
       model.position.set(0, 0, 0);
 
+      // Store background reference for visibility control
+      backgroundRef.current = model;
+
       newScene.add(model);
     }, undefined, (error) => {
       console.error('모델 로드 에러:', error);
@@ -113,6 +128,20 @@ export function useThreeScene({
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       newControls.update();
+
+      // Background visibility control and dynamic bottom light
+      if (backgroundRef.current && bottomLightRef.current) {
+        if (!showBackground || newCamera.position.y < 0.5) {
+          // If showBackground is false OR camera is below floor
+          backgroundRef.current.visible = false;
+          bottomLightRef.current.intensity = 1.0; // Turn ON bottom light
+        } else {
+          // Otherwise, show the background and turn off bottom light
+          backgroundRef.current.visible = true;
+          bottomLightRef.current.intensity = 0; // Turn OFF bottom light
+        }
+      }
+
       newRenderer.render(newScene, newCamera);
     };
 
@@ -149,7 +178,7 @@ export function useThreeScene({
       setRenderer(null);
       setControls(null);
     };
-  }, [containerRef, autoRotate]);
+  }, [containerRef, autoRotate, showBackground]);
 
   return { scene, camera, renderer, controls };
 }
