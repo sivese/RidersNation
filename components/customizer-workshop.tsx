@@ -333,15 +333,15 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
           <div className="relative flex flex-col w-full h-full space-y-6 lg:space-y-8 ">
             {/* Compact Debug Panel */}
             {debugMode && (
-              <Card className="absolute z-999  bottom-0 right-0   w-fit max-w-[95%] flex flex-col p-2.5 lg:p-3 border-yellow-500/50 bg-black/75">
+              <Card className="absolute z-999 bottom-0 right-0 w-fit max-w-[95%] flex flex-col p-2 md:p-2.5 lg:p-3 border-yellow-500/50 bg-black/75">
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-row gap-1 items-center">
-                  <h3 className="text-[10px] lg:text-xs font-semibold text-yellow-500 uppercase tracking-wider">
+                  <h3 className="text-[9px] md:text-[10px] lg:text-xs font-semibold text-yellow-500 uppercase tracking-wider">
                     Debug Tools
                   </h3>
                   {generatedModels.length > 0 && (
-                    <span className="text-xs text-muted-foreground self-center ml-1">
-                      ({generatedModels.length} loaded)
+                    <span className="text-[9px] md:text-xs text-muted-foreground self-center ml-1">
+                      ({generatedModels.length})
                     </span>
                   )}
                   </div>
@@ -349,18 +349,18 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => setDebugMode(false)}
-                    className="h-6 px-2 text-xs"
+                    className="h-5 md:h-6 px-1.5 md:px-2 text-[9px] md:text-xs"
                   >
                     Hide
                 </Button>
                 </div>
 
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1 md:gap-2 flex-wrap">
                   <label className="cursor-pointer">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-7 px-2 text-xs"
+                      className="h-6 md:h-7 px-1.5 md:px-2 text-[9px] md:text-xs"
                       asChild
                     >
                       <span>
@@ -382,7 +382,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=600&auto=format&fit=crop"
                       )
                     }
-                    className="h-7 px-2 text-xs"
+                    className="h-6 md:h-7 px-1.5 md:px-2 text-[9px] md:text-xs"
                   >
                     Sample Image
                   </Button>
@@ -390,7 +390,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                     variant="outline"
                     size="sm"
                     onClick={loadSampleModel}
-                    className="h-7 px-2 text-xs"
+                    className="h-6 md:h-7 px-1.5 md:px-2 text-[9px] md:text-xs"
                   >
                     Sample Model
                   </Button>
@@ -410,7 +410,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                         setSelectedModelId(newModel.id);
                       }
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-6 md:h-7 px-1.5 md:px-2 text-[9px] md:text-xs"
                   >
                     By Task ID
                   </Button>
@@ -422,7 +422,7 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
                       setSelectedModelId(null);
                       setMotorcycleImage(null);
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-6 md:h-7 px-1.5 md:px-2 text-[9px] md:text-xs"
                   >
                     Clear
                   </Button>
@@ -436,39 +436,40 @@ export function CustomizerWorkshop({ initialImage }: CustomizerWorkshopProps) {
             {/* 3D Viewer */}
             {(debugMode || generatedModels.length > 0) && (
               <Card className="w-full h-[60vh] lg:h-[80vh] bg-[#111] border-gray-800 flex flex-col overflow-hidden p-4">
-                <div className="p-2  flex items-center justify-between ">
-                  <h3 className="text-xs lg:text-base xl:text-lg font-semibold text-foreground pointer-events-auto">
-                    3D Model Viewer
+                <div className="p-1 md:p-2 flex items-center justify-between ">
+                  <h3 className="text-[10px] md:text-xs lg:text-base xl:text-lg font-semibold text-foreground pointer-events-auto">
+                    <span className="hidden md:inline">3D Model Viewer</span>
+                    <span className="md:hidden">3D Viewer</span>
                     {generatedModels.length > 0 && (
-                      <span className="ml-2 text-[10px] lg:text-xs xl:text-sm font-normal text-muted-foreground">
-                        ({generatedModels.length} models)
+                      <span className="ml-1 md:ml-2 text-[9px] md:text-[10px] lg:text-xs xl:text-sm font-normal text-muted-foreground">
+                        ({generatedModels.length})
                       </span>
                     )}
                   </h3>
-                  <div className="flex gap-2 pointer-events-auto">
+                  <div className="flex gap-1 md:gap-2 pointer-events-auto">
                     {!debugMode && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setDebugMode(true)}
-                        className="text-xs lg:text-xs xl:text-sm"
+                        className="h-6 md:h-8 px-1.5 md:px-3 text-[9px] md:text-xs lg:text-xs xl:text-sm"
                       >
                         Debug
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={handleReset} className="text-xs lg:text-xs xl:text-sm">
-                      <RotateCcw className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
-                      Reset
+                    <Button variant="outline" size="sm" onClick={handleReset} className="h-6 md:h-8 px-1.5 md:px-3 text-[9px] md:text-xs lg:text-xs xl:text-sm">
+                      <RotateCcw className="h-3 w-3 lg:h-4 lg:w-4 mr-0 md:mr-1 lg:mr-2" />
+                      <span className="hidden md:inline">Reset</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleDownload}
                       disabled={!selectedModelId}
-                      className="text-xs lg:text-xs xl:text-sm"
+                      className="h-6 md:h-8 px-1.5 md:px-3 text-[9px] md:text-xs lg:text-xs xl:text-sm"
                     >
-                      <Download className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
-                      Download
+                      <Download className="h-3 w-3 lg:h-4 lg:w-4 mr-0 md:mr-1 lg:mr-2" />
+                      <span className="hidden md:inline">Download</span>
                     </Button>
                   </div>
                 </div>

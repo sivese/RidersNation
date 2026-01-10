@@ -267,9 +267,9 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
             >
               <div
                 className={`
-                  relative w-full aspect-[4/3] md:aspect-[16/9] 
-                  rounded-[2rem] overflow-hidden 
-                  flex flex-col justify-between p-8 md:p-12
+                  relative w-full aspect-[3/4] md:aspect-[16/9] 
+                  rounded-[1.5rem] md:rounded-[2rem] overflow-hidden 
+                  flex flex-col justify-between p-6 md:p-8 lg:p-12
                   transition-all duration-500 ease-out
                   ${
                     isActive
@@ -313,10 +313,10 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                   <p className=" text-gray-300 font-medium text-base md:text-lg lg:text-lg xl:text-xl leading-snug max-w-lg pointer-events-none">
                     {slide.description}
                   </p>
-                  {/* Play/Pause Button - Bottom Right */}
+                  {/* Play/Pause Button - Top Right on Mobile, Bottom Right on Desktop */}
                   <button
                     onClick={toggleVideoPlayback}
-                    className="fixed bottom-8 right-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
+                    className="fixed top-8 right-8 md:top-auto md:bottom-8 z-50 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
                     aria-label={isVideoPlaying ? "Pause video" : "Play video"}
                   >
                     {isVideoPlaying ? (
@@ -382,18 +382,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
         </div>
       </div>
 
-      {/* Play/Pause Button - Bottom Right */}
-      <button
-        onClick={toggleVideoPlayback}
-        className="fixed bottom-8 right-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
-        aria-label={isVideoPlaying ? "Pause video" : "Play video"}
-      >
-        {isVideoPlaying ? (
-          <Pause className="h-6 w-6 text-white" />
-        ) : (
-          <Play className="h-6 w-6 text-white ml-0.5" />
-        )}
-      </button>
+      
     </div>
   );
 };

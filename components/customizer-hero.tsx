@@ -68,8 +68,8 @@ export function CustomizerHero({
         >
           {!selectedImage && (
             <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground group-hover:text-primary">
-              <Upload className="mb-4 h-10 w-10 lg:h-12 lg:w-12" />
-              <span className="text-xs lg:text-sm font-semibold tracking-wider">
+              <Upload className="mb-4 h-8 w-10 lg:h-8 lg:w-12" />
+              <span className="text-xs lg:text-xs font-semibold tracking-wider">
                 CLICK TO UPLOAD
               </span>
             </div>
