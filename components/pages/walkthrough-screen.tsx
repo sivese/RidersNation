@@ -1,26 +1,32 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Play, Pause } from "lucide-react";
 
 const SLIDES = [
   {
     id: 1,
     title: "2D becomes 3D.",
     description: "Transform a static photo into a spatial model. Instantly.",
-    duration: 5000,
+    duration: 3000,
+    video: "/videos/video1.mp4",
+    poster: "/videos/poster1.jpg",
   },
   {
     id: 2,
     title: "360° Inspection.",
     description: "Explore every angle. Zoom in to see the finest details.",
-    duration: 5000,
+    duration: 8000,
+    video: "/videos/video2.mp4",
+    poster: "/videos/poster2.jpg",
   },
   {
     id: 3,
     title: "Real-time Estimate.",
     description: "Get instant pricing updates as you modify your build.",
     duration: 5000,
+    video: "/videos/video3.mp4",
+    poster: "/videos/poster3.jpg",
   },
 ];
 
@@ -32,8 +38,13 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [hasWatchedFirstVideo, setHasWatchedFirstVideo] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Video refs for controlling playback
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // 드래그 로직을 위한 Refs
   const isDragging = useRef(false);
@@ -106,7 +117,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
     isDragging.current = false;
     setIsPaused(false);
 
-    // ✨ 드래그 끝나면 다시 스냅 활성화 -> 가장 가까운 카드로 "착" 붙음
+    //  드래그 끝나면 다시 스냅 활성화 -> 가장 가까운 카드로 "착" 붙음
     if (scrollContainerRef.current) {
       scrollContainerRef.current.style.scrollSnapType = "x mandatory";
       scrollContainerRef.current.style.cursor = "grab";
@@ -131,7 +142,63 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
     }
   };
 
-  // 4. 자동 재생 타이머
+  // 3.5. Toggle video play/pause
+  const toggleVideoPlayback = () => {
+    const currentVideo = videoRefs.current[currentSlide];
+    if (currentVideo) {
+      if (isVideoPlaying) {
+        currentVideo.pause();
+        setIsVideoPlaying(false);
+      } else {
+        // Only play if first video was watched or current is first video
+        if (currentSlide === 0 || hasWatchedFirstVideo) {
+          currentVideo.play().catch(() => {});
+          setIsVideoPlaying(true);
+        }
+      }
+    }
+  };
+
+  // 4. Track when user has watched the first video
+  useEffect(() => {
+    // If user moves away from the first slide, mark it as watched
+    if (currentSlide > 0 && !hasWatchedFirstVideo) {
+      setHasWatchedFirstVideo(true);
+    }
+  }, [currentSlide, hasWatchedFirstVideo]);
+
+  // 5. Video playback control - first video must be watched to unlock others
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (video) {
+        if (index === currentSlide) {
+          // Play current video only if:
+          // - It's the first video (always allowed), OR
+          // - User has already watched the first video
+          // AND isVideoPlaying is true
+          if ((index === 0 || hasWatchedFirstVideo) && isVideoPlaying) {
+            video.play().catch(() => {
+              // Handle autoplay restrictions
+            });
+          } else {
+            // Don't play videos 2 and 3 if first video hasn't been watched
+            // or if video is paused by user
+            video.pause();
+          }
+        } else {
+          // Pause all non-active videos
+          video.pause();
+        }
+      }
+    });
+  }, [currentSlide, hasWatchedFirstVideo, isVideoPlaying]);
+
+  // 5.5. Reset video playing state when slide changes
+  useEffect(() => {
+    setIsVideoPlaying(true);
+  }, [currentSlide]);
+
+  // 6. 자동 재생 타이머
   useEffect(() => {
     if (isPaused) return;
 
@@ -162,7 +229,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
     <div className="fixed inset-0 z-40 flex flex-col bg-[#111] text-white overflow-hidden select-none">
       {/* Header */}
       <div className="pt-12 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <h1 className="text-foreground text-4xl md:text-5xl font-bold tracking-tight">
+        <h1 className="text-foreground text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold tracking-tight">
           The Workflow.
         </h1>
       </div>
@@ -200,9 +267,9 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
             >
               <div
                 className={`
-                  relative w-full aspect-[4/3] md:aspect-[16/9] 
-                  rounded-[2rem] overflow-hidden 
-                  flex flex-col justify-between p-8 md:p-12
+                  relative w-full aspect-[3/4] md:aspect-[16/9] 
+                  rounded-[1.5rem] md:rounded-[2rem] overflow-hidden 
+                  flex flex-col justify-between p-6 md:p-8 lg:p-12
                   transition-all duration-500 ease-out
                   ${
                     isActive
@@ -213,43 +280,51 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
               >
                 {/* Text Top */}
                 <div
-                  className="z-10 transition-opacity duration-500"
+                  className="z-20 transition-opacity duration-500"
                   style={{ opacity: isActive ? 1 : 0 }}
                 >
-                  <h2 className="text-3xl md:text-5xl font-bold mb-3 pointer-events-none">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 pointer-events-none">
                     {slide.title}
                   </h2>
                 </div>
 
                 {/* Video Area */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div
-                    className={`w-full h-full bg-gradient-to-tr from-blue-500/10 to-purple-500/10 transition-opacity duration-500 ${
-                      isActive ? "opacity-100" : "opacity-0"
-                    }`}
+                <div className="absolute inset-0 flex pointer-events-none">
+                  <video
+                    ref={(el) => {
+                      videoRefs.current[index] = el;
+                    }}
+                    src={slide.video}
+                    poster={slide.poster}
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
                   />
 
-                  {isActive ? (
-                    <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-                      <span className="text-blue-500 font-semibold tracking-wider">
-                        ▶ Playing Video {index + 1}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-gray-600 font-medium">Paused</span>
-                    </div>
-                  )}
+                  <div className="absolute inset-0 bg-black/30" />
                 </div>
 
                 {/* Text Bottom */}
                 <div
-                  className="z-10 mt-auto transition-opacity duration-500"
+                  className="z-20 flex justify-between mt-auto transition-opacity duration-500"
                   style={{ opacity: isActive ? 1 : 0 }}
                 >
-                  <p className=" text-gray-300 font-medium text-lg md:text-xl leading-snug max-w-lg pointer-events-none">
+                  <p className=" text-gray-300 font-medium text-base md:text-lg lg:text-lg xl:text-xl leading-snug max-w-lg pointer-events-none">
                     {slide.description}
                   </p>
+                  {/* Play/Pause Button - Top Right on Mobile, Bottom Right on Desktop */}
+                  <button
+                    onClick={toggleVideoPlayback}
+                    className="fixed top-8 right-8 md:top-auto md:bottom-8 z-50 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
+                    aria-label={isVideoPlaying ? "Pause video" : "Play video"}
+                  >
+                    {isVideoPlaying ? (
+                      <Pause className="h-6 w-6 text-white" />
+                    ) : (
+                      <Play className="h-6 w-6 text-white ml-0.5" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
@@ -297,7 +372,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                 onStart();
               }
             }}
-            className="group flex h-12 items-center gap-2 rounded-full bg-[#1a1a1a] pl-5 pr-4 text-sm font-medium text-white border border-white/5 shadow-lg transition-all hover:bg-[#252525] active:scale-95"
+            className="group flex h-12 items-center gap-2 rounded-full bg-[#1a1a1a] pl-5 pr-4 text-xs lg:text-sm font-medium text-white border border-white/5 shadow-lg transition-all hover:bg-[#252525] active:scale-95"
           >
             <span>{currentSlide === SLIDES.length - 1 ? "Start" : "Next"}</span>
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 transition-colors group-hover:bg-gray-600">
@@ -306,6 +381,8 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
           </button>
         </div>
       </div>
+
+      
     </div>
   );
 };

@@ -214,19 +214,44 @@ export default function DebugPage() {
   }, {} as Record<PartCategory, PartOption[]>);
 
   return (
-    <div className="flex h-screen bg-gray-950 text-white">
-      {/* 좌측 - 파츠 라이브러리 */}
-      <aside className="w-80 p-4 border-r border-gray-800 overflow-y-auto">
-        <h1 className="text-xl font-bold mb-4">파츠 라이브러리</h1>
-
-        <div className="mb-6 p-4 bg-gray-900 rounded-lg">
-          <h2 className="font-semibold mb-3">파츠 모델 추가</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm text-gray-400 mb-1 block">카테고리</label>
-              <Select
-                value={selectedCategory}
-                onValueChange={(v) => setSelectedCategory(v as PartCategory)}
+    <main className="relative min-h-screen bg-black text-white selection:bg-blue-500 selection:text-white overflow-hidden">
+      {/* -----------------------------------------------------------------
+          DEBUG ROUTER PANEL (좌측 하단)
+      ------------------------------------------------------------------ */}
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] flex flex-col items-end gap-2">
+        {showDebug && (
+          <div className="flex flex-col gap-1.5 md:gap-2 rounded-lg md:rounded-xl border border-gray-700 bg-gray-900/90 p-2.5 md:p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-2">
+            <div className="mb-1 md:mb-2 text-[9px] md:text-[10px] lg:text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Debug Router
+            </div>
+            <div className="flex flex-col gap-1.5 md:gap-2">
+              <button
+                onClick={() => setScreen("splash")}
+                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                  screen === "splash"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+              >
+                1. Splash
+              </button>
+              <button
+                onClick={() => setScreen("walkthrough")}
+                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                  screen === "walkthrough"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+              >
+                2. Walkthrough
+              </button>
+              <button
+                onClick={() => setScreen("home")}
+                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                  screen === "home"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
               >
                 <SelectTrigger className="w-full bg-gray-800 border-gray-700">
                   <SelectValue />
@@ -250,8 +275,29 @@ export default function DebugPage() {
                 className="bg-gray-800 border-gray-700"
               />
             </div>
+            {/* 상태 강제 조작 (테스트용) */}
+            {screen === "home" && (
+              <div className="mt-1 md:mt-2 pt-1 md:pt-2 border-t border-gray-700 flex gap-2">
+                <button
+                  onClick={() => {
+                    setIsLoading(false);
+                    setShowWorkshop(false);
+                  }}
+                  className="text-[9px] md:text-[10px] bg-red-900/50 px-1.5 md:px-2 py-1 rounded"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+        <button
+          onClick={() => setShowDebug(!showDebug)}
+          className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-gray-800 border border-gray-700 text-white hover:bg-gray-700"
+        >
+          {showDebug ? <X size={16} className="md:w-[18px] md:h-[18px]" /> : <Settings size={16} className="md:w-[18px] md:h-[18px]" />}
+        </button>
+      </div>
 
         <div className="space-y-4">
           {CATEGORY_ORDER.map(category => {
@@ -338,43 +384,45 @@ export default function DebugPage() {
               const option = getInstalledOption(part.id);
               const categoryInfo = PART_CATEGORIES[part.category];
 
-              return (
-                <div
-                  key={part.id}
-                  className={`
-                    p-3 rounded-lg cursor-pointer
-                    ${selectedPartId === part.id
-                      ? 'bg-blue-600/30 border border-blue-500'
-                      : 'bg-gray-900 hover:bg-gray-800'}
-                  `}
-                  onClick={() => setSelectedPartId(part.id)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-xs text-gray-400">{categoryInfo.nameKo}</div>
-                      <div className="font-medium">{option?.name}</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Scale: {part.scale.toFixed(2)}x
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-400"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removePart(part.id);
-                        if (selectedPartId === part.id) {
-                          setSelectedPartId(null);
-                        }
+          {/* [Loading Popup] 
+            - isLoading이 true일 때만 표시 
+            - 검은색 네온 팝업 디자인
+          */}
+          {isLoading && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+              <div className="relative w-full max-w-[90%] md:max-w-[500px] bg-black border border-cyan-500/30 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center shadow-[0_0_50px_rgba(0,195,255,0.15)]">
+                {/* Title */}
+                <h3 className="text-gray-300 text-sm md:text-base lg:text-lg font-medium mb-4 md:mb-6 lg:mb-8 animate-pulse">
+                  {loadingText}
+                </h3>
+
+                {/* Progress Bar and Percentage */}
+                <div className="flex flex-col items-center justify-center mb-4 md:mb-6 lg:mb-8">
+                  <div className="w-3/4 h-1.5 md:h-2 bg-gray-800 rounded-full overflow-hidden mb-3 md:mb-4 ring-1 ring-white/10">
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-400 to-blue-600 shadow-[0_0_10px_#00c3ff]"
+                      style={{
+                        width: `${progress}%`,
+                        transition: "width 0.1s linear",
                       }}
                     >
                       ✕
                     </Button>
                   </div>
+                  <span className="text-xl md:text-2xl lg:text-3xl font-bold text-white tracking-widest drop-shadow-md">
+                    {progress}%
+                  </span>
                 </div>
-              );
-            })
+
+                {/* Cancel Button */}
+                <button
+                  onClick={handleCancelLoading}
+                  className="px-3 py-1.5 md:px-4 md:py-1.5 lg:px-6 lg:py-2 rounded-full bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all text-[10px] md:text-xs lg:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
         </div>
 

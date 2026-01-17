@@ -23,6 +23,7 @@
   /* Dark gray cards for content sections */
   --card: oklch(0.18 0.005 240);
   --card-foreground: oklch(0.97 0.01 256);
+  --card-3d: oklch(18.25% 0.004 285.8 / 30%);
 
   --popover: oklch(0.1 0.005 240);
   --popover-foreground: oklch(0.97 0.01 256);
@@ -39,6 +40,8 @@
 
   --accent: oklch(0.6 0.24 250);
   --accent-foreground: oklch(1 0 0);
+
+  --subcolor: oklch(48.82% 0.125 253.55);
 
   --destructive: oklch(0.5 0.2 25);
   --destructive-foreground: oklch(1 0 0);
@@ -181,9 +184,262 @@
   animation: fadeIn 1s ease-out forwards;
 }
 
-.text-vision-gradient {
-  background: linear-gradient(180deg, #00ffff, #2052f1);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* --- Model Selector Styles (Dropdown Design) --- */
+
+/* Dropdown Trigger Button */
+.model-selector-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--card-3d);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .model-selector-trigger {
+    min-width: 240px;
+    max-width: 320px;
+    padding: 0.625rem 1rem;
+    border-radius: 0.625rem;
+  }
+}
+
+.model-selector-trigger:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+  box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* Dropdown Container */
+.model-selector-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 200px;
+  max-width: 280px;
+  background-color: var(--card-3d);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+  z-index: 100;
+}
+
+@media (min-width: 768px) {
+  .model-selector-dropdown {
+    min-width: 240px;
+    max-width: 320px;
+    border-radius: 0.625rem;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown Header */
+.model-selector-dropdown-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  color: var(--subcolor);
+  border-bottom: 1px solid var(--border);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .model-selector-dropdown-header {
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+  }
+}
+
+/* Dropdown List */
+.model-selector-dropdown-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.375rem;
+}
+
+@media (min-width: 768px) {
+  .model-selector-dropdown-list {
+    max-height: 400px;
+    padding: 0.5rem;
+  }
+}
+
+/* Dropdown Item */
+.model-selector-dropdown-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  margin-bottom: 0.375rem;
+}
+
+@media (min-width: 768px) {
+  .model-selector-dropdown-item {
+    gap: 0.75rem;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.model-selector-dropdown-item:last-child {
+  margin-bottom: 0;
+}
+
+.model-selector-dropdown-item:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.model-selector-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .model-selector-item {
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+}
+
+.model-selector-item:hover {
+  background-color: var(--muted);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.model-selector-item-selected {
+  border-width: 2px;
+  box-shadow: 0 0 20px -5px currentColor;
+  padding: 0.5rem;
+  
+}
+
+.model-selector-item-thumbnail {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .model-selector-item-thumbnail {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+.model-selector-item-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--card-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .model-selector-item-name {
+    font-size: 0.875rem;
+  }
+}
+
+.model-selector-item-badge {
+  display: inline-block;
+  font-size: 0.625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .model-selector-item-badge {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+  }
+}
+
+.model-selector-delete-btn {
+  padding: 0.375rem;
+  border-radius: 9999px;
+  color: var(--muted-foreground);
+  transition: all 0.2s;
+}
+
+.model-selector-delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(239, 68, 68);
+}
+
+/* --- Part Type Color Classes --- */
+
+.part-type-exhaust {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: rgb(96, 165, 250);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.part-type-seat {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: rgb(74, 222, 128);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.part-type-frame {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: rgb(192, 132, 252);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.part-type-full-bike {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: rgb(251, 146, 60);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+.part-type-default {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
 }

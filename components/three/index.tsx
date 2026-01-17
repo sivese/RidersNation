@@ -26,11 +26,13 @@ export function Model3DViewer({
 }: Model3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState<EditMode>('camera');
+  const [showBackground, setShowBackground] = useState(true);
 
   // Scene 초기화
   const { scene, camera, renderer, controls } = useThreeScene({
     containerRef,
     autoRotate,
+    showBackground,
   });
 
   // 다중 모델 로딩 (변경된 부분)
@@ -38,6 +40,22 @@ export function Model3DViewer({
     scene,
     modelOptions,
     instances,
+  });
+  
+  // 모델 로딩
+  const currentModelUrl = selectedModelId
+    ? modelOptions.find((m) => m.id === selectedModelId)?.url || null
+    : modelOptions[0]?.url || null;
+
+  const { model, originalMaterials, isLoading } = useModelLoader({
+    scene: scene,
+    modelUrl: currentModelUrl,
+  });
+
+  // 뷰 모드
+  const { viewMode, setViewMode } = useViewMode({
+    model,
+    originalMaterials,
   });
 
   // 드래그 컨트롤
@@ -62,6 +80,8 @@ export function Model3DViewer({
         onViewModeChange={() => {}}
         editMode={editMode}
         onEditModeChange={setEditMode}
+        showBackground={showBackground}
+        onShowBackgroundChange={setShowBackground}
       />
       <div className="relative">
         <div

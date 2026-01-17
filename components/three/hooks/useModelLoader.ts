@@ -53,7 +53,7 @@ export function useModelLoader({ scene, modelUrl }: UseModelLoaderParams) {
 
                 model.scale.multiplyScalar(scale);
                 model.position.x = -center.x * scale;
-                model.position.y = -center.y * scale;
+                model.position.y = 0.5 +(-center.y * scale) + ((size.y * scale) / 2 + (size.y * scale) / 4);
                 model.position.z = -center.z * scale;
 
                 showBoundingBox(model, scene);
