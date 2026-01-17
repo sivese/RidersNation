@@ -1,0 +1,1 @@
+type Part = 'frame' | 'exhaust' | 'seat' | 'healight' | 'dashboard' | 'wheel';

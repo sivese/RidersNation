@@ -1,9 +1,8 @@
 "use client";
-
 import { useRef, useState, useEffect } from 'react';
-import { Model3DViewerProps, EditMode } from './types';
+import { Model3DViewerProps, EditMode, ModelInstance } from './types';
 import { useThreeScene } from './hooks/useThreeScene';
-import { useModelLoader } from './hooks/useModelLoader';
+import { useMultiModelLoader } from './hooks/useMultiModelLoader';  // 변경
 import { useViewMode } from './hooks/useViewMode';
 import { useDragControls } from './hooks/useDragControls';
 import {
@@ -15,7 +14,11 @@ import {
 
 export function Model3DViewer({
   modelOptions = [],
-  selectedModelId,
+  instances = [],           // 추가
+  selectedInstanceId,       // 추가 (selectedModelId 대신)
+  onInstanceSelect,         // 추가
+  onInstanceUpdate,         // 추가
+  onInstanceDelete,         // 추가
   onModelSelect,
   onModelDelete,
   className = '',
@@ -32,6 +35,13 @@ export function Model3DViewer({
     showBackground,
   });
 
+  // 다중 모델 로딩 (변경된 부분)
+  const { loadedModels, originalMaterials, isLoading } = useMultiModelLoader({
+    scene,
+    modelOptions,
+    instances,
+  });
+  
   // 모델 로딩
   const currentModelUrl = selectedModelId
     ? modelOptions.find((m) => m.id === selectedModelId)?.url || null
@@ -56,9 +66,9 @@ export function Model3DViewer({
   }, [editMode, controls]);
 
   useDragControls({
-    scene: scene,
-    camera: camera,
-    renderer: renderer,
+    scene,
+    camera,
+    renderer,
     orbitControls: controls,
     enabled: editMode === 'object',
   });
@@ -66,30 +76,26 @@ export function Model3DViewer({
   return (
     <div className={`relative ${className}`}>
       <ViewModeToolbar
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        viewMode={'normal'}
+        onViewModeChange={() => {}}
         editMode={editMode}
         onEditModeChange={setEditMode}
         showBackground={showBackground}
         onShowBackgroundChange={setShowBackground}
       />
-
       <div className="relative">
         <div
           ref={containerRef}
           className="relative w-full bg-gray-100 rounded-lg overflow-hidden border border-border"
           style={{ minHeight: '600px' }}
         />
-
         <ModelSelector
           models={modelOptions}
-          selectedModelId={selectedModelId}
-          onSelect={onModelSelect}
-          onDelete={onModelDelete}
+          selectedModelId={selectedInstanceId}
+          onSelect={onInstanceSelect}
+          onDelete={onInstanceDelete}
         />
-
-        {modelOptions.length === 0 && !isLoading && <EmptyState />}
-
+        {instances.length === 0 && !isLoading && <EmptyState />}
         {isLoading && <LoadingOverlay />}
       </div>
     </div>
