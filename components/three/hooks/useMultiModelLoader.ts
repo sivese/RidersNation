@@ -103,7 +103,9 @@ export function useMultiModelLoader({
           model.scale.setScalar(baseScale * instance.scale);
 
           // 인스턴스 트랜스폼 적용
+          console.log('Placing model instance:', instance.id, 'at', instance.position);
           model.position.set(instance.position.x, instance.position.y, instance.position.z);
+          
           model.rotation.set(instance.rotation.x, instance.rotation.y, instance.rotation.z);
           
           // userData에 인스턴스 ID 저장 (피킹용)

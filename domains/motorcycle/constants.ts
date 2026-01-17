@@ -25,7 +25,7 @@ export const PART_CATEGORIES: Record<PartCategory, PartCategoryInfo> = {
     nameKo: '시트',
     required: true,
     maxCount: 1,
-    defaultPosition: { x: 0, y: 0.4, z: -0.3 },
+    defaultPosition: { x: 0.75, y: 0.45, z: 0.0 },
   },
   muffler: {
     id: 'muffler',
@@ -33,7 +33,7 @@ export const PART_CATEGORIES: Record<PartCategory, PartCategoryInfo> = {
     nameKo: '머플러',
     required: false,
     maxCount: 2,
-    defaultPosition: { x: 0.3, y: -0.2, z: -0.5 },
+    defaultPosition: { x: 0.0, y: -0.3, z: 0.0 },
   },
   handle: {
     id: 'handle',
