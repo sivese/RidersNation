@@ -113,7 +113,7 @@ export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight flex items-center gap-1">
+      <h1 className="text-5xl md:text-7xl font-bold tracking-tight flex items-center gap-1">
         <span
           className="text-foreground font-semibold animate-fade-in opacity-0"
           style={{ animationDelay: "0.1s" }}

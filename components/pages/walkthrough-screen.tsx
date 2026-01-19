@@ -229,7 +229,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
     <div className="fixed inset-0 z-40 flex flex-col bg-[#111] text-white overflow-hidden select-none">
       {/* Header */}
       <div className="pt-12 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <h1 className="text-foreground text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold tracking-tight">
+        <h1 className="text-foreground text-4xl md:text-5xl font-bold tracking-tight">
           The Workflow.
         </h1>
       </div>
@@ -267,9 +267,9 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
             >
               <div
                 className={`
-                  relative w-full aspect-[3/4] md:aspect-[16/9] 
-                  rounded-[1.5rem] md:rounded-[2rem] overflow-hidden 
-                  flex flex-col justify-between p-6 md:p-8 lg:p-12
+                  relative w-full aspect-[4/3] md:aspect-[16/9] 
+                  rounded-[2rem] overflow-hidden 
+                  flex flex-col justify-between p-8 md:p-12
                   transition-all duration-500 ease-out
                   ${
                     isActive
@@ -283,7 +283,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                   className="z-20 transition-opacity duration-500"
                   style={{ opacity: isActive ? 1 : 0 }}
                 >
-                  <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 pointer-events-none">
+                  <h2 className="text-3xl md:text-5xl font-bold mb-3 pointer-events-none">
                     {slide.title}
                   </h2>
                 </div>
@@ -310,13 +310,13 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                   className="z-20 flex justify-between mt-auto transition-opacity duration-500"
                   style={{ opacity: isActive ? 1 : 0 }}
                 >
-                  <p className=" text-gray-300 font-medium text-base md:text-lg lg:text-lg xl:text-xl leading-snug max-w-lg pointer-events-none">
+                  <p className=" text-gray-300 font-medium text-lg md:text-xl leading-snug max-w-lg pointer-events-none">
                     {slide.description}
                   </p>
-                  {/* Play/Pause Button - Top Right on Mobile, Bottom Right on Desktop */}
+                  {/* Play/Pause Button - Bottom Right */}
                   <button
                     onClick={toggleVideoPlayback}
-                    className="fixed top-8 right-8 md:top-auto md:bottom-8 z-50 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
+                    className="fixed bottom-8 right-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
                     aria-label={isVideoPlaying ? "Pause video" : "Play video"}
                   >
                     {isVideoPlaying ? (
@@ -372,7 +372,7 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
                 onStart();
               }
             }}
-            className="group flex h-12 items-center gap-2 rounded-full bg-[#1a1a1a] pl-5 pr-4 text-xs lg:text-sm font-medium text-white border border-white/5 shadow-lg transition-all hover:bg-[#252525] active:scale-95"
+            className="group flex h-12 items-center gap-2 rounded-full bg-[#1a1a1a] pl-5 pr-4 text-sm font-medium text-white border border-white/5 shadow-lg transition-all hover:bg-[#252525] active:scale-95"
           >
             <span>{currentSlide === SLIDES.length - 1 ? "Start" : "Next"}</span>
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 transition-colors group-hover:bg-gray-600">
@@ -382,7 +382,18 @@ export const WalkthroughScreen = ({ onStart }: WalkthroughScreenProps) => {
         </div>
       </div>
 
-      
+      {/* Play/Pause Button - Bottom Right */}
+      <button
+        onClick={toggleVideoPlayback}
+        className="fixed bottom-8 right-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 shadow-lg backdrop-blur-md transition-all hover:bg-[#252525] hover:border-blue-500/30 hover:shadow-blue-500/20 active:scale-95"
+        aria-label={isVideoPlaying ? "Pause video" : "Play video"}
+      >
+        {isVideoPlaying ? (
+          <Pause className="h-6 w-6 text-white" />
+        ) : (
+          <Play className="h-6 w-6 text-white ml-0.5" />
+        )}
+      </button>
     </div>
   );
 };

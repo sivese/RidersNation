@@ -107,16 +107,16 @@ export default function Home() {
       {/* -----------------------------------------------------------------
           DEBUG ROUTER PANEL (좌측 하단)
       ------------------------------------------------------------------ */}
-      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] flex flex-col items-end gap-2">
+      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
         {showDebug && (
-          <div className="flex flex-col gap-1.5 md:gap-2 rounded-lg md:rounded-xl border border-gray-700 bg-gray-900/90 p-2.5 md:p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-2">
-            <div className="mb-1 md:mb-2 text-[9px] md:text-[10px] lg:text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-900/90 p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-2">
+            <div className="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
               Debug Router
             </div>
-            <div className="flex flex-col gap-1.5 md:gap-2">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => setScreen("splash")}
-                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-sm rounded text-left transition-all ${
                   screen === "splash"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -126,7 +126,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setScreen("walkthrough")}
-                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-sm rounded text-left transition-all ${
                   screen === "walkthrough"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -136,7 +136,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setScreen("home")}
-                className={`px-2 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs lg:text-sm rounded text-left transition-all ${
+                className={`px-4 py-2 text-sm rounded text-left transition-all ${
                   screen === "home"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                     : "bg-gray-800 hover:bg-gray-700"
@@ -147,13 +147,13 @@ export default function Home() {
             </div>
             {/* 상태 강제 조작 (테스트용) */}
             {screen === "home" && (
-              <div className="mt-1 md:mt-2 pt-1 md:pt-2 border-t border-gray-700 flex gap-2">
+              <div className="mt-2 pt-2 border-t border-gray-700 flex gap-2">
                 <button
                   onClick={() => {
                     setIsLoading(false);
                     setShowWorkshop(false);
                   }}
-                  className="text-[9px] md:text-[10px] bg-red-900/50 px-1.5 md:px-2 py-1 rounded"
+                  className="text-[10px] bg-red-900/50 px-2 py-1 rounded"
                 >
                   Reset
                 </button>
@@ -163,9 +163,9 @@ export default function Home() {
         )}
         <button
           onClick={() => setShowDebug(!showDebug)}
-          className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-gray-800 border border-gray-700 text-white hover:bg-gray-700"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 border border-gray-700 text-white hover:bg-gray-700"
         >
-          {showDebug ? <X size={16} className="md:w-[18px] md:h-[18px]" /> : <Settings size={16} className="md:w-[18px] md:h-[18px]" />}
+          {showDebug ? <X size={18} /> : <Settings size={18} />}
         </button>
       </div>
 
@@ -208,16 +208,16 @@ export default function Home() {
             - 검은색 네온 팝업 디자인
           */}
           {isLoading && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-300 p-4">
-              <div className="relative w-full max-w-[90%] md:max-w-[500px] bg-black border border-cyan-500/30 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center shadow-[0_0_50px_rgba(0,195,255,0.15)]">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-300">
+              <div className="relative w-[500px] max-w-[90%] bg-black border border-cyan-500/30 rounded-3xl p-12 text-center shadow-[0_0_50px_rgba(0,195,255,0.15)]">
                 {/* Title */}
-                <h3 className="text-gray-300 text-sm md:text-base lg:text-lg font-medium mb-4 md:mb-6 lg:mb-8 animate-pulse">
+                <h3 className="text-gray-300 text-lg font-medium mb-8 animate-pulse">
                   {loadingText}
                 </h3>
 
                 {/* Progress Bar and Percentage */}
-                <div className="flex flex-col items-center justify-center mb-4 md:mb-6 lg:mb-8">
-                  <div className="w-3/4 h-1.5 md:h-2 bg-gray-800 rounded-full overflow-hidden mb-3 md:mb-4 ring-1 ring-white/10">
+                <div className="flex flex-col items-center justify-center mb-8">
+                  <div className="w-3/4 h-2 bg-gray-800 rounded-full overflow-hidden mb-4 ring-1 ring-white/10">
                     <div
                       className="h-full bg-gradient-to-r from-cyan-400 to-blue-600 shadow-[0_0_10px_#00c3ff]"
                       style={{
@@ -226,7 +226,7 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <span className="text-xl md:text-2xl lg:text-3xl font-bold text-white tracking-widest drop-shadow-md">
+                  <span className="text-3xl font-bold text-white tracking-widest drop-shadow-md">
                     {progress}%
                   </span>
                 </div>
@@ -234,7 +234,7 @@ export default function Home() {
                 {/* Cancel Button */}
                 <button
                   onClick={handleCancelLoading}
-                  className="px-3 py-1.5 md:px-4 md:py-1.5 lg:px-6 lg:py-2 rounded-full bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all text-[10px] md:text-xs lg:text-sm"
+                  className="px-6 py-2 rounded-full bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all text-sm"
                 >
                   Cancel
                 </button>
