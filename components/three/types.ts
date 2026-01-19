@@ -41,4 +41,4 @@ export interface LightingSettings {
 }
 
 export type ViewMode = 'normal' | 'wireframe' | 'grayscale' | 'wireframe-grayscale';
-export type EditMode = 'camera' | 'object';
+export type EditMode = 'View' | 'Move';

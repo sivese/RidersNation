@@ -145,8 +145,8 @@ export function CustomizerTool() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-balance text-2xl font-bold text-foreground md:text-3xl lg:text-3xl xl:text-4xl">Customization Studio</h2>
-            <p className="text-pretty text-sm lg:text-sm xl:text-base text-muted-foreground">
+            <h2 className="mb-4 text-balance text-3xl font-bold text-foreground md:text-4xl">Customization Studio</h2>
+            <p className="text-pretty text-muted-foreground">
               Upload your motorcycle and parts to create your perfect build
             </p>
           </div>
@@ -155,17 +155,17 @@ export function CustomizerTool() {
             {/* Upload Section - Now on top */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* Motorcycle Upload */}
-              <Card className="border-border bg-card p-4 lg:p-6">
-                <h3 className="mb-4 flex items-center gap-2 text-base lg:text-lg font-semibold text-card-foreground">
-                  <span className="flex h-7 w-7 lg:h-8 lg:w-8 items-center justify-center rounded-full bg-primary/10 text-xs lg:text-sm font-bold text-primary">
+              <Card className="border-border bg-card p-6">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-card-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                     1
                   </span>
                   Upload Your Motorcycle
                 </h3>
                 <div className="space-y-4">
                   <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-secondary/50 transition-colors hover:border-primary/50 hover:bg-secondary">
-                    <Upload className="mb-2 h-6 w-6 lg:h-8 lg:w-8 text-muted-foreground" />
-                    <span className="text-xs lg:text-sm text-muted-foreground">
+                    <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
                       {motorcycleImage ? "Change motorcycle image" : "Click to upload motorcycle"}
                     </span>
                     <input
@@ -188,17 +188,17 @@ export function CustomizerTool() {
               </Card>
 
               {/* Part Upload */}
-              <Card className="border-border bg-card p-4 lg:p-6">
-                <h3 className="mb-4 flex items-center gap-2 text-base lg:text-lg font-semibold text-card-foreground">
-                  <span className="flex h-7 w-7 lg:h-8 lg:w-8 items-center justify-center rounded-full bg-primary/10 text-xs lg:text-sm font-bold text-primary">
+              <Card className="border-border bg-card p-6">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-card-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                     2
                   </span>
                   Upload Custom Part
                 </h3>
                 <div className="space-y-4">
                   <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-secondary/50 transition-colors hover:border-primary/50 hover:bg-secondary">
-                    <Upload className="mb-2 h-6 w-6 lg:h-8 lg:w-8 text-muted-foreground" />
-                    <span className="text-xs lg:text-sm text-muted-foreground">
+                    <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
                       {partImage ? "Change part image" : "Click to upload part"}
                     </span>
                     <input
@@ -223,11 +223,11 @@ export function CustomizerTool() {
 
             {/* Controls - Between uploads and preview */}
             {motorcycleImage && partImage && dummyState && (
-              <Card className="border-border bg-card p-4 lg:p-6">
-                <h3 className="mb-4 text-base lg:text-lg font-semibold text-card-foreground">Adjust Part</h3>
+              <Card className="border-border bg-card p-6">
+                <h3 className="mb-4 text-lg font-semibold text-card-foreground">Adjust Part</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-xs lg:text-sm text-muted-foreground">
+                    <label className="mb-2 block text-sm text-muted-foreground">
                       Size: {Math.round(partScale * 100)}%
                     </label>
                     <input
@@ -240,24 +240,24 @@ export function CustomizerTool() {
                       className="w-full accent-primary"
                     />
                   </div>
-                  <p className="text-xs lg:text-sm text-muted-foreground">Drag the part on the preview to position it</p>
+                  <p className="text-sm text-muted-foreground">Drag the part on the preview to position it</p>
                 </div>
               </Card>
             )}
 
             {/* Preview Section - Now below uploads */}
-            <Card className="border-border bg-card p-4 lg:p-6">
+            <Card className="border-border bg-card p-6">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base lg:text-lg font-semibold text-card-foreground">Preview</h3>
+                <h3 className="text-lg font-semibold text-card-foreground">Preview</h3>
                 {motorcycleImage && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleReset} className="gap-2 bg-transparent text-xs lg:text-sm">
-                      <RotateCcw className="h-3 w-3 lg:h-4 lg:w-4" />
+                    <Button variant="outline" size="sm" onClick={handleReset} className="gap-2 bg-transparent">
+                      <RotateCcw className="h-4 w-4" />
                       Reset
                     </Button>
                     {partImage && (
-                      <Button variant="default" size="sm" onClick={handleDownload} className="gap-2 text-xs lg:text-sm">
-                        <Download className="h-3 w-3 lg:h-4 lg:w-4" />
+                      <Button variant="default" size="sm" onClick={handleDownload} className="gap-2">
+                        <Download className="h-4 w-4" />
                         Download
                       </Button>
                     )}
@@ -280,7 +280,7 @@ export function CustomizerTool() {
                   </>
                 ) : (
                   <div className="flex h-full items-center justify-center">
-                    <p className="text-sm lg:text-base text-muted-foreground">Upload a motorcycle to start</p>
+                    <p className="text-muted-foreground">Upload a motorcycle to start</p>
                   </div>
                 )}
               </div>
@@ -288,7 +288,7 @@ export function CustomizerTool() {
                 <button
                   onClick={requestPreviewRender}
                   disabled={isGenerating}
-                  className="px-4 py-2 lg:px-6 lg:py-3 text-xs lg:text-sm bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? 'Generating...' : 'Run Preview'}
                 </button>
